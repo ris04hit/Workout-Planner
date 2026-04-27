@@ -1,0 +1,1393 @@
+[
+  {
+    "name": "Bodyweight Squat",
+    "enabled": true,
+    "difficulty": 1,
+    "priority": 3,
+    "pattern": "SQUAT",
+    "family": "SQUAT",
+    "muscles": {
+      "QUADS": 0.75,
+      "GLUTES": 0.4,
+      "CORE": 0.03
+    },
+    "description": {
+      "steps": [
+        "Stand with feet about shoulder-width apart.",
+        "Lower your hips down and back as if sitting on a chair.",
+        "Keep your chest up and knees tracking over your toes.",
+        "Push through the floor to return to standing."
+      ],
+      "breathing": [
+        "Inhale as you lower down.",
+        "Exhale as you stand back up."
+      ],
+      "careful_about": [
+        "Do not let your heels lift off the ground.",
+        "Avoid collapsing your knees inward.",
+        "Keep your back neutral and do not round forward."
+      ]
+    }
+  },
+  {
+    "name": "Goblet Squat",
+    "enabled": true,
+    "difficulty": 2,
+    "priority": 3,
+    "pattern": "SQUAT",
+    "family": "SQUAT",
+    "muscles": {
+      "QUADS": 0.8,
+      "GLUTES": 0.45,
+      "CORE": 0.02
+    },
+    "description": {
+      "steps": [
+        "Hold one dumbbell close to your chest with both hands.",
+        "Stand with feet shoulder-width apart.",
+        "Lower into a deep squat while keeping the weight close.",
+        "Drive up through your feet to stand tall."
+      ],
+      "breathing": [
+        "Inhale on the way down.",
+        "Exhale on the way up."
+      ],
+      "careful_about": [
+        "Keep the dumbbell tight to your chest.",
+        "Do not let your lower back round.",
+        "Keep knees aligned with toes."
+      ]
+    }
+  },
+  {
+    "name": "Bulgarian Split Squat",
+    "enabled": true,
+    "difficulty": 3,
+    "priority": 1,
+    "pattern": "SQUAT",
+    "family": "SPLIT_SQUAT",
+    "muscles": {
+      "QUADS": 0.6,
+      "GLUTES": 0.45,
+      "HAMSTRINGS": 0.15,
+      "CORE": 0.02
+    },
+    "description": {
+      "steps": [
+        "Place the back foot on a chair or bench.",
+        "Step the front foot forward far enough to stay balanced.",
+        "Lower straight down until the front thigh is near parallel.",
+        "Push through the front foot to return up."
+      ],
+      "breathing": [
+        "Inhale as you lower.",
+        "Exhale as you stand."
+      ],
+      "careful_about": [
+        "Keep most of the weight on the front leg.",
+        "Do not let the front knee cave inward.",
+        "Use support if balance is difficult."
+      ]
+    }
+  },
+  {
+    "name": "Reverse Lunge",
+    "enabled": true,
+    "difficulty": 2,
+    "priority": 2,
+    "pattern": "SQUAT",
+    "family": "LUNGE",
+    "muscles": {
+      "QUADS": 0.55,
+      "GLUTES": 0.4,
+      "HAMSTRINGS": 0.1,
+      "CORE": 0.02
+    },
+    "description": {
+      "steps": [
+        "Stand tall with feet hip-width apart.",
+        "Step one leg backward into a lunge.",
+        "Lower until both knees are bent comfortably.",
+        "Push through the front foot to return to standing."
+      ],
+      "breathing": [
+        "Inhale as you step back and lower.",
+        "Exhale as you come back up."
+      ],
+      "careful_about": [
+        "Keep the front knee stable.",
+        "Do not lean too far forward.",
+        "Take a controlled step, not a jump."
+      ]
+    }
+  },
+  {
+    "name": "Step-Ups (chair)",
+    "enabled": true,
+    "difficulty": 2,
+    "priority": 2,
+    "pattern": "SQUAT",
+    "family": "STEP_UP",
+    "muscles": {
+      "QUADS": 0.5,
+      "GLUTES": 0.4,
+      "HAMSTRINGS": 0.15,
+      "CORE": 0.02
+    },
+    "description": {
+      "steps": [
+        "Place one foot firmly on a stable chair or step.",
+        "Lean slightly forward and push through the elevated leg.",
+        "Bring your body up until you are standing on the chair.",
+        "Step back down under control and repeat."
+      ],
+      "breathing": [
+        "Inhale before the step up.",
+        "Exhale as you drive upward."
+      ],
+      "careful_about": [
+        "Use a stable surface that will not slip.",
+        "Do not push too much with the back leg.",
+        "Keep the working knee aligned with the foot."
+      ]
+    }
+  },
+  {
+    "name": "Dumbbell Romanian Deadlift",
+    "enabled": true,
+    "difficulty": 2,
+    "priority": 3,
+    "pattern": "HINGE",
+    "family": "DEADLIFT",
+    "muscles": {
+      "HAMSTRINGS": 0.6,
+      "GLUTES": 0.45,
+      "CORE": 0.03
+    },
+    "description": {
+      "steps": [
+        "Hold dumbbells in front of your thighs.",
+        "Push hips back while keeping a slight bend in the knees.",
+        "Lower the dumbbells along your legs until you feel a hamstring stretch.",
+        "Drive hips forward to stand back up."
+      ],
+      "breathing": [
+        "Inhale as you hinge down.",
+        "Exhale as you return to standing."
+      ],
+      "careful_about": [
+        "Keep the back neutral.",
+        "Do not squat the movement down.",
+        "Stop when you lose hamstring tension or back position."
+      ]
+    }
+  },
+  {
+    "name": "Dumbbell Deadlift",
+    "enabled": true,
+    "difficulty": 2,
+    "priority": 2,
+    "pattern": "HINGE",
+    "family": "DEADLIFT",
+    "muscles": {
+      "QUADS": 0.25,
+      "HAMSTRINGS": 0.45,
+      "GLUTES": 0.4,
+      "CORE": 0.04
+    },
+    "description": {
+      "steps": [
+        "Place dumbbells on the floor in front of your feet.",
+        "Hinge down and grip the dumbbells with a flat back.",
+        "Stand up by driving through your feet and extending the hips.",
+        "Lower the dumbbells back to the floor with control."
+      ],
+      "breathing": [
+        "Inhale before lifting.",
+        "Exhale as you stand up.",
+        "Inhale again as you lower."
+      ],
+      "careful_about": [
+        "Do not round your lower back.",
+        "Keep the weights close to your body.",
+        "Move smoothly instead of jerking."
+      ]
+    }
+  },
+  {
+    "name": "Single-Leg RDL",
+    "enabled": true,
+    "difficulty": 4,
+    "priority": 1,
+    "pattern": "HINGE",
+    "family": "DEADLIFT",
+    "muscles": {
+      "HAMSTRINGS": 0.55,
+      "GLUTES": 0.4,
+      "CORE": 0.04
+    },
+    "description": {
+      "steps": [
+        "Stand on one leg with a dumbbell in the opposite hand.",
+        "Hinge forward while sending the free leg straight back.",
+        "Keep hips square and lower with control.",
+        "Return to standing by driving the standing hip forward."
+      ],
+      "breathing": [
+        "Inhale as you hinge down.",
+        "Exhale as you come back up."
+      ],
+      "careful_about": [
+        "Do not twist the hips open.",
+        "Keep a soft knee on the standing leg.",
+        "Use a wall or chair for balance if needed."
+      ]
+    }
+  },
+  {
+    "name": "Glute Bridge",
+    "enabled": true,
+    "difficulty": 1,
+    "priority": 3,
+    "pattern": "HINGE",
+    "family": "GLUTE_BRIDGE",
+    "muscles": {
+      "GLUTES": 0.8,
+      "HAMSTRINGS": 0.2,
+      "CORE": 0.02
+    },
+    "description": {
+      "steps": [
+        "Lie on your back with knees bent and feet flat.",
+        "Brace your core and squeeze your glutes.",
+        "Lift your hips until your body forms a straight line from knees to shoulders.",
+        "Lower your hips back down with control."
+      ],
+      "breathing": [
+        "Inhale at the bottom.",
+        "Exhale as you lift the hips.",
+        "Inhale as you lower."
+      ],
+      "careful_about": [
+        "Do not over-arch your lower back.",
+        "Push through your heels, not your toes.",
+        "Keep the movement controlled."
+      ]
+    }
+  },
+  {
+    "name": "single leg glute bridge",
+    "enabled": true,
+    "difficulty": 2,
+    "priority": 2,
+    "pattern": "HINGE",
+    "family": "GLUTE_BRIDGE",
+    "muscles": {
+      "GLUTES": 0.7,
+      "HAMSTRINGS": 0.2,
+      "CORE": 0.02
+    },
+    "description": {
+      "steps": [
+        "Lie on your back and extend one leg straight.",
+        "Keep the other foot flat on the floor.",
+        "Lift your hips by squeezing the working glute.",
+        "Lower slowly and repeat before switching sides."
+      ],
+      "breathing": [
+        "Inhale before lifting.",
+        "Exhale as you raise your hips.",
+        "Inhale as you lower."
+      ],
+      "careful_about": [
+        "Keep hips level.",
+        "Do not let the lower back take over.",
+        "Use a smaller range if balance is unstable."
+      ]
+    }
+  },
+  {
+    "name": "Dumbbell Swing",
+    "enabled": true,
+    "difficulty": 3,
+    "priority": 1,
+    "pattern": "HINGE",
+    "family": "HINGE_POWER",
+    "muscles": {
+      "GLUTES": 0.45,
+      "HAMSTRINGS": 0.35,
+      "CORE": 0.03,
+      "SHOULDERS": 0.05
+    },
+    "description": {
+      "steps": [
+        "Hold one dumbbell with both hands.",
+        "Hinge at the hips and swing the weight back between your legs.",
+        "Explosively drive your hips forward to swing the weight up.",
+        "Let the arms guide the weight; the hips create the power."
+      ],
+      "breathing": [
+        "Inhale on the backswing.",
+        "Exhale sharply as you drive the hips forward."
+      ],
+      "careful_about": [
+        "Do not squat the movement.",
+        "Keep your back neutral.",
+        "Use a controlled dumbbell that you can handle safely."
+      ]
+    }
+  },
+  {
+    "name": "Standing Calf Raise",
+    "enabled": true,
+    "difficulty": 1,
+    "priority": 2,
+    "pattern": "ACCESSORY",
+    "family": "CALF",
+    "muscles": {
+      "CALVES": 0.9
+    },
+    "description": {
+      "steps": [
+        "Stand upright with feet about hip-width apart.",
+        "Lift your heels as high as possible.",
+        "Pause briefly at the top.",
+        "Lower your heels slowly back to the floor."
+      ],
+      "breathing": [
+        "Exhale as you rise.",
+        "Inhale as you lower."
+      ],
+      "careful_about": [
+        "Do not bounce at the bottom.",
+        "Keep the motion controlled.",
+        "Avoid leaning too far forward."
+      ]
+    }
+  },
+  {
+    "name": "Single-Leg Calf Raise",
+    "enabled": true,
+    "difficulty": 2,
+    "priority": 2,
+    "pattern": "ACCESSORY",
+    "family": "CALF",
+    "muscles": {
+      "CALVES": 0.9
+    },
+    "description": {
+      "steps": [
+        "Stand on one foot and keep the other leg lifted.",
+        "Raise your heel as high as you can.",
+        "Pause briefly at the top.",
+        "Lower slowly and repeat before switching sides."
+      ],
+      "breathing": [
+        "Exhale as you lift.",
+        "Inhale as you lower."
+      ],
+      "careful_about": [
+        "Use support if balance is difficult.",
+        "Do not rush the lowering phase.",
+        "Keep the ankle moving through a full range."
+      ]
+    }
+  },
+  {
+    "name": "Push-Up",
+    "enabled": true,
+    "difficulty": 3,
+    "priority": 3,
+    "pattern": "PUSH",
+    "family": "PUSHUP",
+    "muscles": {
+      "CHEST": 0.65,
+      "TRICEPS": 0.25,
+      "SHOULDERS": 0.1,
+      "CORE": 0.02
+    },
+    "description": {
+      "steps": [
+        "Start in a straight plank position with hands under shoulders.",
+        "Lower your chest toward the floor with control.",
+        "Keep your body in a straight line.",
+        "Push back up until your arms are fully extended."
+      ],
+      "breathing": [
+        "Inhale as you lower.",
+        "Exhale as you push up."
+      ],
+      "careful_about": [
+        "Do not let your hips sag.",
+        "Do not flare elbows excessively.",
+        "Keep your neck neutral."
+      ]
+    }
+  },
+  {
+    "name": "Incline Push-Up",
+    "enabled": true,
+    "difficulty": 2,
+    "priority": 3,
+    "pattern": "PUSH",
+    "family": "PUSHUP",
+    "muscles": {
+      "CHEST": 0.55,
+      "TRICEPS": 0.2,
+      "SHOULDERS": 0.1,
+      "CORE": 0.02
+    },
+    "description": {
+      "steps": [
+        "Place your hands on a stable elevated surface.",
+        "Keep your body straight from head to heels.",
+        "Lower your chest toward the surface.",
+        "Press back up to the starting position."
+      ],
+      "breathing": [
+        "Inhale on the way down.",
+        "Exhale on the way up."
+      ],
+      "careful_about": [
+        "Make sure the surface is stable.",
+        "Do not bend at the hips.",
+        "Keep shoulders controlled and not shrugged."
+      ]
+    }
+  },
+  {
+    "name": "Knee Push-Up",
+    "enabled": true,
+    "difficulty": 2,
+    "priority": 3,
+    "pattern": "PUSH",
+    "family": "PUSHUP",
+    "muscles": {
+      "CHEST": 0.5,
+      "TRICEPS": 0.2,
+      "SHOULDERS": 0.1,
+      "CORE": 0.02
+    },
+    "description": {
+      "steps": [
+        "Start with your knees on the floor and hands under shoulders.",
+        "Keep your hips and shoulders aligned.",
+        "Lower your chest toward the floor.",
+        "Push back up to full arm extension."
+      ],
+      "breathing": [
+        "Inhale as you lower.",
+        "Exhale as you push up."
+      ],
+      "careful_about": [
+        "Do not arch your lower back.",
+        "Keep your core engaged.",
+        "Move through a controlled range."
+      ]
+    }
+  },
+  {
+    "name": "Incline Knee Push-Up",
+    "enabled": true,
+    "difficulty": 1,
+    "priority": 3,
+    "pattern": "PUSH",
+    "family": "PUSHUP",
+    "muscles": {
+      "CHEST": 0.5,
+      "TRICEPS": 0.2,
+      "SHOULDERS": 0.1,
+      "CORE": 0.02
+    },
+    "description": {
+      "steps": [
+        "Place your hands on an elevated surface and keep your knees on the floor.",
+        "Keep your body straight from knees to head.",
+        "Lower your chest toward the surface.",
+        "Push back up under control."
+      ],
+      "breathing": [
+        "Inhale as you lower.",
+        "Exhale as you press up."
+      ],
+      "careful_about": [
+        "Keep the surface stable.",
+        "Do not let your hips sink.",
+        "Use a height that feels manageable."
+      ]
+    }
+  },
+  {
+    "name": "Decline Push-Up",
+    "enabled": true,
+    "difficulty": 4,
+    "priority": 1,
+    "pattern": "PUSH",
+    "family": "PUSHUP",
+    "muscles": {
+      "CHEST": 0.6,
+      "TRICEPS": 0.25,
+      "SHOULDERS": 0.2,
+      "CORE": 0.03
+    },
+    "description": {
+      "steps": [
+        "Place your feet on a raised surface and hands on the floor.",
+        "Keep your body straight and brace your core.",
+        "Lower your chest toward the floor.",
+        "Press back up to the starting position."
+      ],
+      "breathing": [
+        "Inhale as you lower.",
+        "Exhale as you push up."
+      ],
+      "careful_about": [
+        "Do not let your lower back sag.",
+        "Keep your neck neutral.",
+        "Use a low elevation first if needed."
+      ]
+    }
+  },
+  {
+    "name": "Close-Grip Push-Up",
+    "enabled": true,
+    "difficulty": 3,
+    "priority": 2,
+    "pattern": "PUSH",
+    "family": "PUSHUP",
+    "muscles": {
+      "TRICEPS": 0.45,
+      "CHEST": 0.3,
+      "SHOULDERS": 0.1,
+      "CORE": 0.03
+    },
+    "description": {
+      "steps": [
+        "Start in a push-up position with hands placed closer together.",
+        "Lower your chest while keeping elbows tucked more than usual.",
+        "Keep your torso straight.",
+        "Push back up by extending the elbows."
+      ],
+      "breathing": [
+        "Inhale on the descent.",
+        "Exhale on the press."
+      ],
+      "careful_about": [
+        "Do not place hands too close if it hurts wrists.",
+        "Keep elbows from flaring out too much.",
+        "Maintain a tight core."
+      ]
+    }
+  },
+  {
+    "name": "Feet Elevated Push-Up",
+    "enabled": true,
+    "difficulty": 4,
+    "priority": 1,
+    "pattern": "PUSH",
+    "family": "PUSHUP",
+    "muscles": {
+      "CHEST": 0.6,
+      "TRICEPS": 0.25,
+      "SHOULDERS": 0.15,
+      "CORE": 0.03
+    },
+    "description": {
+      "steps": [
+        "Place your feet on a stable elevated surface.",
+        "Keep your body straight from head to heels.",
+        "Lower your chest toward the floor.",
+        "Press back up while keeping the core tight."
+      ],
+      "breathing": [
+        "Inhale as you lower.",
+        "Exhale as you push up."
+      ],
+      "careful_about": [
+        "Make sure the foot support is stable.",
+        "Do not overarch the lower back.",
+        "Start with a low elevation if needed."
+      ]
+    }
+  },
+  {
+    "name": "Dumbbell Overhead Press",
+    "enabled": true,
+    "difficulty": 2,
+    "priority": 3,
+    "pattern": "PUSH",
+    "family": "PRESS",
+    "muscles": {
+      "SHOULDERS": 0.75,
+      "TRICEPS": 0.25,
+      "CORE": 0.02
+    },
+    "description": {
+      "steps": [
+        "Hold dumbbells at shoulder height with palms facing forward.",
+        "Brace your core and press the dumbbells overhead.",
+        "Lock out at the top without shrugging excessively.",
+        "Lower the dumbbells back to shoulder level."
+      ],
+      "breathing": [
+        "Inhale before pressing.",
+        "Exhale as you press overhead.",
+        "Inhale as you lower."
+      ],
+      "careful_about": [
+        "Do not arch your lower back.",
+        "Keep ribs down and core tight.",
+        "Use a controlled path overhead."
+      ]
+    }
+  },
+  {
+    "name": "Seated DB Shoulder Press",
+    "enabled": true,
+    "difficulty": 2,
+    "priority": 2,
+    "pattern": "PUSH",
+    "family": "PRESS",
+    "muscles": {
+      "SHOULDERS": 0.8,
+      "TRICEPS": 0.2,
+      "CORE": 0.01
+    },
+    "description": {
+      "steps": [
+        "Sit tall with dumbbells at shoulder height.",
+        "Press the dumbbells straight overhead.",
+        "Pause briefly near lockout.",
+        "Lower slowly back to shoulder height."
+      ],
+      "breathing": [
+        "Inhale before pressing.",
+        "Exhale as you press up.",
+        "Inhale as you lower."
+      ],
+      "careful_about": [
+        "Keep your back supported if possible.",
+        "Do not overarch the spine.",
+        "Avoid banging the dumbbells together overhead."
+      ]
+    }
+  },
+  {
+    "name": "Arnold Press",
+    "enabled": true,
+    "difficulty": 3,
+    "priority": 2,
+    "pattern": "PUSH",
+    "family": "PRESS",
+    "muscles": {
+      "SHOULDERS": 0.75,
+      "TRICEPS": 0.2,
+      "CORE": 0.02
+    },
+    "description": {
+      "steps": [
+        "Start with dumbbells in front of your shoulders and palms facing you.",
+        "Rotate the palms outward as you press up.",
+        "Reach overhead with control.",
+        "Reverse the movement as you lower."
+      ],
+      "breathing": [
+        "Inhale as you lower.",
+        "Exhale as you press and rotate up."
+      ],
+      "careful_about": [
+        "Move slowly and smoothly.",
+        "Do not let the lower back arch.",
+        "Keep the shoulders controlled through the rotation."
+      ]
+    }
+  },
+  {
+    "name": "Pike Push-Up",
+    "enabled": true,
+    "difficulty": 4,
+    "priority": 1,
+    "pattern": "PUSH",
+    "family": "PIKE_PRESS",
+    "muscles": {
+      "SHOULDERS": 0.8,
+      "TRICEPS": 0.25,
+      "CORE": 0.03
+    },
+    "description": {
+      "steps": [
+        "Start in a pike position with hips raised high.",
+        "Bend your elbows and lower the head toward the floor.",
+        "Keep most of the load on the shoulders.",
+        "Press back up to the starting pike position."
+      ],
+      "breathing": [
+        "Inhale as you lower.",
+        "Exhale as you press up."
+      ],
+      "careful_about": [
+        "Keep the head movement controlled.",
+        "Do not let the shoulders collapse.",
+        "Use a smaller range if the movement is too hard."
+      ]
+    }
+  },
+  {
+    "name": "Bench Dips (chair)",
+    "enabled": true,
+    "difficulty": 2,
+    "priority": 1,
+    "pattern": "PUSH",
+    "family": "TRICEP",
+    "muscles": {
+      "TRICEPS": 0.8,
+      "CHEST": 0.15,
+      "SHOULDERS": 0.1
+    },
+    "description": {
+      "steps": [
+        "Place your hands on the edge of a stable chair or bench.",
+        "Extend your legs forward and lower your hips by bending the elbows.",
+        "Descend until your upper arms are roughly parallel to the floor.",
+        "Press through your palms to return to the top."
+      ],
+      "breathing": [
+        "Inhale as you lower.",
+        "Exhale as you push back up."
+      ],
+      "careful_about": [
+        "Keep the chair or bench stable.",
+        "Do not let your shoulders shrug up.",
+        "Avoid going too deep if it irritates the shoulders."
+      ]
+    }
+  },
+  {
+    "name": "Overhead DB Tricep Extension",
+    "enabled": true,
+    "difficulty": 2,
+    "priority": 2,
+    "pattern": "ACCESSORY",
+    "family": "TRICEP",
+    "muscles": {
+      "TRICEPS": 0.9,
+      "SHOULDERS": 0.1
+    },
+    "description": {
+      "steps": [
+        "Hold one dumbbell with both hands overhead.",
+        "Keep your elbows pointed forward and close to your head.",
+        "Lower the dumbbell behind your head by bending the elbows.",
+        "Extend the elbows to raise the dumbbell back overhead."
+      ],
+      "breathing": [
+        "Inhale as you lower.",
+        "Exhale as you extend."
+      ],
+      "careful_about": [
+        "Do not flare the elbows outward too much.",
+        "Keep your core braced so the lower back does not arch.",
+        "Use a controlled range of motion."
+      ]
+    }
+  },
+  {
+    "name": "Lying DB Tricep Extension (Skullcrusher)",
+    "enabled": true,
+    "difficulty": 3,
+    "priority": 1,
+    "pattern": "ACCESSORY",
+    "family": "TRICEP",
+    "muscles": {
+      "TRICEPS": 0.9,
+      "CHEST": 0.05,
+      "SHOULDERS": 0.05
+    },
+    "description": {
+      "steps": [
+        "Lie on your back and hold dumbbells above your chest.",
+        "Keep your upper arms mostly still.",
+        "Lower the dumbbells by bending only at the elbows.",
+        "Press the dumbbells back up to the starting position."
+      ],
+      "breathing": [
+        "Inhale as you lower.",
+        "Exhale as you press up."
+      ],
+      "careful_about": [
+        "Keep elbows steady and avoid drifting them wide.",
+        "Do not let the weights crash toward your face.",
+        "Lower with control instead of dropping fast."
+      ]
+    }
+  },
+  {
+    "name": "tate press",
+    "enabled": true,
+    "difficulty": 3,
+    "priority": 1,
+    "pattern": "ACCESSORY",
+    "family": "TRICEP",
+    "muscles": {
+      "TRICEPS": 0.8,
+      "CHEST": 0.1,
+      "SHOULDERS": 0.1
+    },
+    "description": {
+      "steps": [
+        "Lie on your back holding dumbbells above your chest.",
+        "Point the elbows outward slightly.",
+        "Lower the dumbbells toward the upper chest by bending the elbows.",
+        "Press the dumbbells back up under control."
+      ],
+      "breathing": [
+        "Inhale as you lower.",
+        "Exhale as you press up."
+      ],
+      "careful_about": [
+        "Keep the movement slow and controlled.",
+        "Do not let the elbows collapse too far inward.",
+        "Use light weight first to learn the path."
+      ]
+    }
+  },
+  {
+    "name": "One-Arm Dumbbell Row",
+    "enabled": true,
+    "difficulty": 2,
+    "priority": 3,
+    "pattern": "PULL",
+    "family": "ROW",
+    "muscles": {
+      "LATS": 0.7,
+      "REAR_DELTS": 0.15,
+      "BICEPS": 0.1,
+      "CORE": 0.03
+    },
+    "description": {
+      "steps": [
+        "Place one hand and knee on a chair or bench for support.",
+        "Let the dumbbell hang with a straight arm.",
+        "Pull the dumbbell toward your hip.",
+        "Lower it back down with control."
+      ],
+      "breathing": [
+        "Inhale as you lower.",
+        "Exhale as you pull up."
+      ],
+      "careful_about": [
+        "Do not twist your torso to cheat the rep.",
+        "Keep your back flat.",
+        "Pull toward the hip, not straight up to the shoulder."
+      ]
+    }
+  },
+  {
+    "name": "Bent Over Dumbbell Row",
+    "enabled": true,
+    "difficulty": 2,
+    "priority": 3,
+    "pattern": "PULL",
+    "family": "ROW",
+    "muscles": {
+      "LATS": 0.65,
+      "REAR_DELTS": 0.15,
+      "BICEPS": 0.1,
+      "CORE": 0.03
+    },
+    "description": {
+      "steps": [
+        "Hold dumbbells and hinge forward at the hips.",
+        "Keep your back flat and chest open.",
+        "Pull the dumbbells toward your lower ribs or hips.",
+        "Lower them slowly back to the starting position."
+      ],
+      "breathing": [
+        "Inhale as you lower.",
+        "Exhale as you row up."
+      ],
+      "careful_about": [
+        "Do not round your lower back.",
+        "Avoid jerking the weights.",
+        "Keep the neck neutral and gaze slightly forward."
+      ]
+    }
+  },
+  {
+    "name": "Renegade Row",
+    "enabled": true,
+    "difficulty": 4,
+    "priority": 1,
+    "pattern": "PULL",
+    "family": "ROW",
+    "muscles": {
+      "LATS": 0.45,
+      "CORE": 0.35,
+      "REAR_DELTS": 0.1,
+      "BICEPS": 0.1
+    },
+    "description": {
+      "steps": [
+        "Start in a high plank with a dumbbell under each hand.",
+        "Brace your core and row one dumbbell toward your hip.",
+        "Lower it back down without twisting too much.",
+        "Repeat on the other side."
+      ],
+      "breathing": [
+        "Inhale to brace and lower.",
+        "Exhale as you row the dumbbell up."
+      ],
+      "careful_about": [
+        "Keep hips as level as possible.",
+        "Do not let the lower back sag.",
+        "Use lighter dumbbells until your plank is stable."
+      ]
+    }
+  },
+  {
+    "name": "Rear Delt Fly (DB)",
+    "enabled": true,
+    "difficulty": 1,
+    "priority": 2,
+    "pattern": "PULL",
+    "family": "REAR_DELT",
+    "muscles": {
+      "REAR_DELTS": 0.85,
+      "LATS": 0.1,
+      "CORE": 0.01
+    },
+    "description": {
+      "steps": [
+        "Hinge forward slightly with dumbbells hanging below you.",
+        "Keep a soft bend in your elbows.",
+        "Lift the dumbbells out to the sides.",
+        "Lower them slowly back down."
+      ],
+      "breathing": [
+        "Inhale as you lower.",
+        "Exhale as you lift."
+      ],
+      "careful_about": [
+        "Do not use momentum.",
+        "Keep shoulders away from your ears.",
+        "Use light weight and focus on control."
+      ]
+    }
+  },
+  {
+    "name": "Bent Over Reverse Fly",
+    "enabled": true,
+    "difficulty": 1,
+    "priority": 2,
+    "pattern": "PULL",
+    "family": "REAR_DELT",
+    "muscles": {
+      "REAR_DELTS": 0.85,
+      "LATS": 0.1,
+      "CORE": 0.01
+    },
+    "description": {
+      "steps": [
+        "Hinge forward with a flat back and dumbbells hanging below you.",
+        "Raise the dumbbells outward and slightly back.",
+        "Pause briefly at the top.",
+        "Lower slowly with control."
+      ],
+      "breathing": [
+        "Inhale as you lower.",
+        "Exhale as you raise."
+      ],
+      "careful_about": [
+        "Do not swing the weights.",
+        "Do not shrug the shoulders.",
+        "Keep the movement small and controlled."
+      ]
+    }
+  },
+  {
+    "name": "Reverse Snow Angels",
+    "enabled": true,
+    "difficulty": 1,
+    "priority": 1,
+    "pattern": "PULL",
+    "family": "REAR_DELT",
+    "muscles": {
+      "REAR_DELTS": 0.7,
+      "CORE": 0.04,
+      "LATS": 0.05
+    },
+    "description": {
+      "steps": [
+        "Lie face down on the floor with your arms extended overhead.",
+        "Lift your arms slightly off the floor.",
+        "Sweep your arms out to the sides and down toward your hips.",
+        "Return them to the starting position with control."
+      ],
+      "breathing": [
+        "Inhale as you return to the start.",
+        "Exhale as you sweep the arms around."
+      ],
+      "careful_about": [
+        "Keep the neck relaxed.",
+        "Do not force a big range of motion.",
+        "Move slowly to keep tension on the rear delts."
+      ]
+    }
+  },
+  {
+    "name": "Dumbbell Curl",
+    "enabled": true,
+    "difficulty": 1,
+    "priority": 3,
+    "pattern": "ACCESSORY",
+    "family": "CURL",
+    "muscles": {
+      "BICEPS": 0.85,
+      "FOREARMS": 0.15
+    },
+    "description": {
+      "steps": [
+        "Stand upright holding dumbbells at your sides.",
+        "Keep elbows close to your body.",
+        "Curl the dumbbells up toward your shoulders.",
+        "Lower them slowly back down."
+      ],
+      "breathing": [
+        "Exhale as you curl up.",
+        "Inhale as you lower."
+      ],
+      "careful_about": [
+        "Do not swing your body.",
+        "Keep elbows fixed in place.",
+        "Control the lowering phase."
+      ]
+    }
+  },
+  {
+    "name": "Alternating DB Curl",
+    "enabled": true,
+    "difficulty": 1,
+    "priority": 2,
+    "pattern": "ACCESSORY",
+    "family": "CURL",
+    "muscles": {
+      "BICEPS": 0.85,
+      "FOREARMS": 0.15
+    },
+    "description": {
+      "steps": [
+        "Stand holding dumbbells in both hands.",
+        "Curl one arm up while the other stays down.",
+        "Lower it and repeat with the other arm.",
+        "Continue alternating."
+      ],
+      "breathing": [
+        "Exhale as you lift each arm.",
+        "Inhale as you lower."
+      ],
+      "careful_about": [
+        "Avoid leaning back.",
+        "Keep movement slow and controlled.",
+        "Do not rush between reps."
+      ]
+    }
+  },
+  {
+    "name": "Hammer Curl",
+    "enabled": true,
+    "difficulty": 2,
+    "priority": 2,
+    "pattern": "ACCESSORY",
+    "family": "CURL",
+    "muscles": {
+      "BICEPS": 0.55,
+      "FOREARMS": 0.4
+    },
+    "description": {
+      "steps": [
+        "Hold dumbbells with palms facing inward.",
+        "Keep elbows close to your body.",
+        "Curl the weights up without rotating wrists.",
+        "Lower them slowly."
+      ],
+      "breathing": [
+        "Exhale while lifting.",
+        "Inhale while lowering."
+      ],
+      "careful_about": [
+        "Do not swing the weights.",
+        "Keep wrists neutral.",
+        "Maintain control throughout."
+      ]
+    }
+  },
+  {
+    "name": "Concentration Curl",
+    "enabled": true,
+    "difficulty": 2,
+    "priority": 1,
+    "pattern": "ACCESSORY",
+    "family": "CURL",
+    "muscles": {
+      "BICEPS": 0.9
+    },
+    "description": {
+      "steps": [
+        "Sit and rest your elbow on your inner thigh.",
+        "Hold a dumbbell and let it hang down.",
+        "Curl the weight up toward your shoulder.",
+        "Lower slowly to full extension."
+      ],
+      "breathing": [
+        "Exhale as you curl up.",
+        "Inhale as you lower."
+      ],
+      "careful_about": [
+        "Do not move your upper arm.",
+        "Avoid using momentum.",
+        "Focus on slow, controlled reps."
+      ]
+    }
+  },
+  {
+    "name": "Wrist Curl",
+    "enabled": true,
+    "difficulty": 1,
+    "priority": 1,
+    "pattern": "ACCESSORY",
+    "family": "FOREARM",
+    "muscles": {
+      "FOREARMS": 0.9
+    },
+    "description": {
+      "steps": [
+        "Sit and rest your forearms on your thighs.",
+        "Hold dumbbells with palms facing up.",
+        "Curl your wrists upward.",
+        "Lower slowly."
+      ],
+      "breathing": [
+        "Exhale as you curl.",
+        "Inhale as you lower."
+      ],
+      "careful_about": [
+        "Move only the wrists.",
+        "Use light weight.",
+        "Avoid jerky movement."
+      ]
+    }
+  },
+  {
+    "name": "Plank",
+    "enabled": true,
+    "difficulty": 1,
+    "priority": 3,
+    "pattern": "CORE",
+    "family": "CORE_STATIC",
+    "muscles": {
+      "CORE": 0.9,
+      "SHOULDERS": 0.05,
+      "GLUTES": 0.05
+    },
+    "description": {
+      "steps": [
+        "Get into a forearm plank position.",
+        "Keep your body in a straight line.",
+        "Brace your core and hold.",
+        "Maintain position for time."
+      ],
+      "breathing": [
+        "Breathe normally and steadily.",
+        "Do not hold your breath."
+      ],
+      "careful_about": [
+        "Do not let hips sag or rise.",
+        "Keep neck neutral.",
+        "Engage core throughout."
+      ]
+    }
+  },
+  {
+    "name": "Side Plank",
+    "enabled": true,
+    "difficulty": 2,
+    "priority": 2,
+    "pattern": "CORE",
+    "family": "CORE_STATIC",
+    "muscles": {
+      "CORE": 0.85,
+      "SHOULDERS": 0.1,
+      "GLUTES": 0.05
+    },
+    "description": {
+      "steps": [
+        "Lie on your side and support yourself on one forearm.",
+        "Lift your hips off the ground.",
+        "Keep your body in a straight line.",
+        "Hold the position."
+      ],
+      "breathing": [
+        "Breathe steadily throughout.",
+        "Avoid holding breath."
+      ],
+      "careful_about": [
+        "Do not let hips drop.",
+        "Keep shoulders stacked.",
+        "Maintain alignment."
+      ]
+    }
+  },
+  {
+    "name": "Dead Bug",
+    "enabled": true,
+    "difficulty": 1,
+    "priority": 2,
+    "pattern": "CORE",
+    "family": "CORE_DYNAMIC",
+    "muscles": {
+      "CORE": 0.85,
+      "GLUTES": 0.1,
+      "SHOULDERS": 0.05
+    },
+    "description": {
+      "steps": [
+        "Lie on your back with arms and legs raised.",
+        "Lower opposite arm and leg slowly.",
+        "Return to start.",
+        "Alternate sides."
+      ],
+      "breathing": [
+        "Exhale as you extend.",
+        "Inhale as you return."
+      ],
+      "careful_about": [
+        "Keep lower back pressed to the floor.",
+        "Move slowly.",
+        "Avoid arching your back."
+      ]
+    }
+  },
+  {
+    "name": "Hollow Hold",
+    "enabled": true,
+    "difficulty": 3,
+    "priority": 1,
+    "pattern": "CORE",
+    "family": "CORE_STATIC",
+    "muscles": {
+      "CORE": 0.95
+    },
+    "description": {
+      "steps": [
+        "Lie on your back and lift arms and legs slightly off the floor.",
+        "Press your lower back into the ground.",
+        "Hold the position.",
+        "Maintain tension throughout."
+      ],
+      "breathing": [
+        "Breathe steadily.",
+        "Do not hold breath."
+      ],
+      "careful_about": [
+        "Do not arch your lower back.",
+        "Keep core tight.",
+        "Start with easier variations if needed."
+      ]
+    }
+  },
+  {
+    "name": "Burpees",
+    "enabled": true,
+    "difficulty": 3,
+    "priority": 1,
+    "pattern": "ACCESSORY",
+    "family": "CONDITIONING",
+    "muscles": {
+      "QUADS": 0.35,
+      "GLUTES": 0.2,
+      "CHEST": 0.2,
+      "SHOULDERS": 0.15,
+      "CORE": 0.02
+    },
+    "description": {
+      "steps": [
+        "Start standing.",
+        "Drop into a squat and place hands on the floor.",
+        "Jump feet back into a plank.",
+        "Return feet forward and jump up."
+      ],
+      "breathing": [
+        "Breathe rhythmically.",
+        "Exhale during the jump."
+      ],
+      "careful_about": [
+        "Land softly.",
+        "Maintain control in plank.",
+        "Avoid rushing with poor form."
+      ]
+    }
+  },
+  {
+    "name": "Mountain Climbers",
+    "enabled": true,
+    "difficulty": 2,
+    "priority": 2,
+    "pattern": "ACCESSORY",
+    "family": "CONDITIONING",
+    "muscles": {
+      "CORE": 0.45,
+      "QUADS": 0.25,
+      "SHOULDERS": 0.1,
+      "CHEST": 0.05
+    },
+    "description": {
+      "steps": [
+        "Start in a plank position.",
+        "Drive one knee toward your chest.",
+        "Switch legs quickly.",
+        "Continue alternating."
+      ],
+      "breathing": [
+        "Keep breathing steady.",
+        "Avoid holding breath."
+      ],
+      "careful_about": [
+        "Keep hips low.",
+        "Do not bounce excessively.",
+        "Maintain a strong plank."
+      ]
+    }
+  },
+  {
+    "name": "Dumbbell Thrusters",
+    "enabled": true,
+    "difficulty": 4,
+    "priority": 1,
+    "pattern": "ACCESSORY",
+    "family": "THRUSTER",
+    "muscles": {
+      "QUADS": 0.35,
+      "GLUTES": 0.2,
+      "SHOULDERS": 0.25,
+      "TRICEPS": 0.15,
+      "CORE": 0.02
+    },
+    "description": {
+      "steps": [
+        "Hold dumbbells at shoulder level.",
+        "Perform a squat.",
+        "As you stand, press the dumbbells overhead.",
+        "Lower back to starting position."
+      ],
+      "breathing": [
+        "Inhale during squat.",
+        "Exhale as you press overhead."
+      ],
+      "careful_about": [
+        "Keep your back straight.",
+        "Do not rush the movement.",
+        "Use controlled transitions between squat and press."
+      ]
+    }
+  }
+]

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Smart personal workout planner with fatigue-aware exercise suggestions." />
+  <title>Workout Planner</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-inner">
+    <span class="app-logo-icon" aria-hidden="true">💪</span>
+    <h1 class="app-title">Workout Planner</h1>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- ── Today's Workout ───────────────────────────────────────── -->
+  <details class="card collapsible-card" open>
+    <summary class="card-summary">
+      <span class="card-summary-title">
+        <span class="section-icon" aria-hidden="true">🏋️</span> Today's Workout
+      </span>
+    </summary>
+    <div class="card-body">
+
+      <section class="dashboard-section">
+        <h3 class="section-label">Muscle Soreness</h3>
+        <p class="section-hint">Mark muscles that feel sore — they will be deprioritised in today's suggestion.</p>
+        <div id="soreness" class="toggle-grid"></div>
+      </section>
+
+      <details class="dashboard-section inner-collapsible">
+        <summary><span class="section-label">Muscle Fatigue</span></summary>
+        <div id="fatigue-display" class="inner-collapsible-body"></div>
+      </details>
+
+      <div class="action-row">
+        <button class="btn-primary" onclick="loadSuggestion()">⚡ Generate Workout</button>
+      </div>
+
+      <div id="suggestion-meta" class="suggestion-meta-bar"></div>
+      <div id="suggestion"></div>
+
+    </div>
+  </details>
+
+  <!-- ── Workout Logging ────────────────────────────────────────── -->
+  <details class="card collapsible-card" open>
+    <summary class="card-summary">
+      <span class="card-summary-title">
+        <span class="section-icon" aria-hidden="true">📋</span> Log Workout
+      </span>
+    </summary>
+    <div class="card-body">
+      <div id="workout"></div>
+      <div class="add-custom-ex-row">
+        <div class="ex-search-wrap">
+          <input type="text" id="custom-ex-name" class="ex-search-input"
+            placeholder="Search or type any exercise…" autocomplete="off"
+            role="combobox" aria-autocomplete="list" aria-expanded="false">
+          <div id="custom-ex-dropdown" class="ex-search-dropdown" hidden role="listbox"></div>
+        </div>
+        <button id="add-custom-ex-btn" class="btn-primary add-ex-btn">+ Add</button>
+      </div>
+      <div class="action-row">
+        <button class="btn-primary" onclick="saveWorkout()">💾 Save Workout</button>
+      </div>
+    </div>
+  </details>
+
+  <!-- ── History ────────────────────────────────────────────────── -->
+  <details class="card collapsible-card">
+    <summary class="card-summary">
+      <span class="card-summary-title">
+        <span class="section-icon" aria-hidden="true">📚</span> Workout History
+      </span>
+    </summary>
+    <div class="card-body">
+      <div class="action-row">
+        <button class="btn-secondary" onclick="loadHistory()">↻ Refresh</button>
+        <button class="btn-secondary" onclick="showExportImportModal()">📤 Export / Import</button>
+      </div>
+      <div id="history"></div>
+    </div>
+  </details>
+
+  <!-- ── Analytics ─────────────────────────────────────────────── -->
+  <details class="card collapsible-card">
+    <summary class="card-summary">
+      <span class="card-summary-title">
+        <span class="section-icon" aria-hidden="true">📊</span> Analytics
+      </span>
+    </summary>
+    <div class="card-body">
+      <div id="analytics-dashboard"></div>
+      <div class="action-row">
+        <button class="btn-secondary" onclick="exportAnalyticsData('json')">Export JSON</button>
+        <button class="btn-secondary" onclick="exportAnalyticsData('csv')">Export CSV</button>
+      </div>
+    </div>
+  </details>
+
+
+  <!-- ── Exercise Library ───────────────────────────────────────── -->
+  <details class="card collapsible-card">
+    <summary class="card-summary">
+      <span class="card-summary-title">
+        <span class="section-icon" aria-hidden="true">🏃</span> Exercise Library
+      </span>
+    </summary>
+    <div class="card-body">
+      <p class="section-hint">
+        <strong>Order matters</strong> — exercises listed first within a pattern are preferred when scores are equal.
+        Hover any field label for a description.
+      </p>
+      <div id="exercise-management"></div>
+      <div class="action-row">
+        <button class="btn-primary" onclick="saveExercisesFromUI()">💾 Save Exercises</button>
+      </div>
+    </div>
+  </details>
+
+  <!-- ── Configuration ──────────────────────────────────────────── -->
+  <details class="card collapsible-card">
+    <summary class="card-summary">
+      <span class="card-summary-title">
+        <span class="section-icon" aria-hidden="true">⚙️</span> Configuration
+      </span>
+    </summary>
+    <div class="card-body">
+      <div id="config-panel"></div>
+      <div class="action-row">
+        <button class="btn-primary" onclick="saveConfigFromUI()">💾 Save Config</button>
+        <button class="btn-secondary" onclick="resetConfigFromUI()">↺ Reset Defaults</button>
+      </div>
+      <details class="inner-collapsible">
+        <summary>Config Change History</summary>
+        <div id="config-history" class="inner-collapsible-body"></div>
+      </details>
+    </div>
+  </details>
+
+</main>
+
+<script type="module" src="/static/js/main.js"></script>
+</body>
+</html>

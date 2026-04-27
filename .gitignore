@@ -1,0 +1,50 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+
+# ── Virtual environment ────────────────────────────────────────────────────────
+venv/
+env/
+.env
+.env.*
+
+# ── Node ──────────────────────────────────────────────────────────────────────
+node_modules/
+coverage/
+
+# ── IDE / editor ──────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Runtime state (default user) ──────────────────────────────────────────────
+# data/default/exercises.json and data/default/config.json ARE tracked (seed data).
+# The files below are written at runtime and must NOT be committed.
+data/default/workouts.json
+data/default/soreness.json
+data/default/config_history.json
+
+# ── User data ─────────────────────────────────────────────────────────────────
+data/users/
+data/users.json
+
+# ── Temporary, backup and log files ───────────────────────────────────────────
+data/.tmp_*
+data/*.backup_*
+*.bak
+*.orig
+*.log
