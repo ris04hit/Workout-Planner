@@ -23,4 +23,6 @@ Clear resolved bugs by moving them to the relevant version file in `docs/version
 
 <!-- Add new bugs below this line -->
 
+No open bugs after the v1.1.0 documentation sweep.
 
+Resolved v1.1.0 issues were moved into `docs/versions/v1.1.0.md` under **Fixed**.

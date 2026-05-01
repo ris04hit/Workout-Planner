@@ -29,6 +29,9 @@ register_workout_routes(app)
 register_exercises_routes(app)
 register_config_routes(app)
 
+# One-time idempotent migration: strip library metadata from stored workout history
+migrate_strip_exercise_meta()
+
 # Main route - serves the frontend
 @app.route("/")
 def index():

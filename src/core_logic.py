@@ -269,41 +269,57 @@ def score_exercise_breakdown(
     fatigue: Dict[str, float],
     weekly_load: Dict[str, float],
     sore: Dict[str, bool],
-    history: List[str],
-    config: dict
+    recency: Dict[str, int],
+    config: dict,
+    family_recency: Optional[Dict[str, int]] = None,
 ) -> dict:
     """
     Return score components and total for display purposes.
 
     Keys: total, readiness, weekly_boost, priority, recency_penalty,
-          soreness_penalty, contribution_capped
+          family_recency_penalty, soreness_penalty, contribution_capped
     """
     scoring_cfg  = config["scoring"]
     max_total    = scoring_cfg["max_total_contribution"]
     alpha        = scoring_cfg["scaling_exponent"]
+    decay        = scoring_cfg.get("recency_decay", 0.75)
 
     raw_muscles  = exercise.get("muscles", {})
     muscles      = _cap_contributions(raw_muscles, max_total)
     capped       = sum(raw_muscles.values()) > max_total
 
-    raw_readiness   = sum(c * readiness(m, fatigue, config) for m, c in muscles.items())
+    raw_readiness    = sum(c * readiness(m, fatigue, config) for m, c in muscles.items())
     scaled_readiness = _apply_sublinear(raw_readiness, alpha)
-    weekly_boost    = sum(c * _weekly_bonus(m, weekly_load, config) for m, c in muscles.items())
-    priority_bonus  = exercise.get("priority", 3) * scoring_cfg["priority_coeff"]
-    recency_penalty = -scoring_cfg["recency_penalty"] if exercise.get("name") in history else 0.0
-    sore_penalty    = -sum(
+    weekly_boost     = sum(c * _weekly_bonus(m, weekly_load, config) for m, c in muscles.items())
+    priority_bonus   = exercise.get("priority", 3) * scoring_cfg["priority_coeff"]
+
+    days = recency.get(exercise.get("name")) if recency else None
+    recency_penalty = (
+        -scoring_cfg["recency_penalty"] * (decay ** days)
+        if days is not None else 0.0
+    )
+
+    family = (exercise.get("family") or "").strip()
+    family_days = family_recency.get(family) if (family_recency and family) else None
+    family_recency_pen = (
+        -scoring_cfg.get("family_recency_penalty", 0.0) * (decay ** family_days)
+        if family_days is not None else 0.0
+    )
+
+    sore_penalty = -sum(
         c * config["sore_penalty_factor"]
         for m, c in muscles.items() if sore.get(m, False)
     )
-    total = scaled_readiness + weekly_boost + priority_bonus + recency_penalty + sore_penalty
+    total = scaled_readiness + weekly_boost + priority_bonus + recency_penalty + family_recency_pen + sore_penalty
     return {
-        "total":                round(total, 2),
-        "readiness":            round(scaled_readiness, 2),
-        "weekly_boost":         round(weekly_boost, 2),
-        "priority":             round(priority_bonus, 2),
-        "recency_penalty":      round(recency_penalty, 2),
-        "soreness_penalty":     round(sore_penalty, 2),
-        "contribution_capped":  capped,
+        "total":                  round(total, 2),
+        "readiness":              round(scaled_readiness, 2),
+        "weekly_boost":           round(weekly_boost, 2),
+        "priority":               round(priority_bonus, 2),
+        "recency_penalty":        round(recency_penalty, 2),
+        "family_recency_penalty": round(family_recency_pen, 2),
+        "soreness_penalty":       round(sore_penalty, 2),
+        "contribution_capped":    capped,
     }
 
 
@@ -312,8 +328,9 @@ def compute_exercise_score(
     fatigue: Dict[str, float],
     weekly_load: Dict[str, float],
     sore: Dict[str, bool],
-    history: List[str],
-    config: dict
+    recency: Dict[str, int],
+    config: dict,
+    family_recency: Optional[Dict[str, int]] = None,
 ) -> float:
     """
     Score an exercise. Higher is better.
@@ -327,6 +344,7 @@ def compute_exercise_score(
     scoring_cfg  = config["scoring"]
     max_total    = scoring_cfg["max_total_contribution"]
     alpha        = scoring_cfg["scaling_exponent"]
+    decay        = scoring_cfg.get("recency_decay", 0.75)
 
     muscles = _cap_contributions(exercise.get("muscles", {}), max_total)
 
@@ -340,8 +358,15 @@ def compute_exercise_score(
 
     score += exercise.get("priority", 3) * scoring_cfg["priority_coeff"]
 
-    if exercise.get("name") in history:
-        score -= scoring_cfg["recency_penalty"]
+    days = recency.get(exercise.get("name")) if recency else None
+    if days is not None:
+        score -= scoring_cfg["recency_penalty"] * (decay ** days)
+
+    family = (exercise.get("family") or "").strip()
+    if family_recency and family:
+        family_days = family_recency.get(family)
+        if family_days is not None:
+            score -= scoring_cfg.get("family_recency_penalty", 0.0) * (decay ** family_days)
 
     return score
 
@@ -371,10 +396,10 @@ def select_workout(
     fatigue: Dict[str, float],
     weekly_load: Dict[str, float],
     sore: Dict[str, bool],
-    history: List[str],
+    recency: Dict[str, int],
     exercises: List[dict],
     config: Optional[dict] = None,
-    last_done_days: Optional[Dict[str, int]] = None,
+    family_recency: Optional[Dict[str, int]] = None,
 ) -> List[dict]:
     """
     Select a set of exercises for today's workout.
@@ -397,20 +422,30 @@ def select_workout(
     Returns list of selected exercise dicts (with original fields).
     """
     config = get_effective_config(config)
-    _last_done = last_done_days or {}
     _NEVER_DONE = 36500  # sentinel: ~100 years, always beats any real recency
 
-    def _run(exercises_pool, relax: bool = False) -> List[dict]:
+    def _run(exercises_pool, relax: bool = False, apply_threshold: bool = True) -> List[dict]:
         valid = [e for e in exercises_pool if is_exercise_valid(e, fatigue, sore, config)]
 
-        scored = [e for _, e in sorted(
-            enumerate(valid),
-            key=lambda ie: (
-                -compute_exercise_score(ie[1], fatigue, weekly_load, sore, history, config),
-                -_last_done.get(ie[1]["name"], _NEVER_DONE),  # prefer least recent
-                ie[0]  # final fallback: list position
+        # Pre-compute scores once — used for threshold filter and sort
+        score_map = {
+            e["name"]: compute_exercise_score(e, fatigue, weekly_load, sore, recency, config, family_recency)
+            for e in valid
+        }
+
+        pool = valid
+        min_score = config.get("scoring", {}).get("min_score_threshold", 0.0)
+        if apply_threshold and min_score:
+            pool = [e for e in valid if score_map[e["name"]] >= min_score]
+
+        scored = sorted(
+            pool,
+            key=lambda e: (
+                -score_map[e["name"]],
+                -(recency.get(e["name"], _NEVER_DONE)),  # prefer least recent
+                valid.index(e)                           # final fallback: list position
             )
-        )]
+        )
 
         workout: List[dict] = []
         muscle_usage: Dict[str, float] = {}
@@ -456,11 +491,10 @@ def select_workout(
     # Normal pass
     result = _run(exercises)
 
-    # Fallback: relax all constraints, include sore-blocked exercises as penalised
+    # Fallback: relax all constraints, skip threshold so user always gets exercises
     if not result:
-        sore_relaxed = {m: False for m in sore}
         valid_all = [e for e in exercises if e.get("enabled", True)]
-        result = _run(valid_all, relax=True)
+        result = _run(valid_all, relax=True, apply_threshold=False)
 
     # Last resort: return first enabled exercise
     if not result:
@@ -489,12 +523,12 @@ if __name__ == "__main__":
     fatigue = {}
     weekly_load = {}
     sore = {}
-    history = []
+    recency = {}
 
     config = get_effective_config()
-    result = select_workout(fatigue, weekly_load, sore, history, exercises, config)
+    result = select_workout(fatigue, weekly_load, sore, recency, exercises, config)
 
     print(f"Selected {len(result)} exercises:")
     for ex in result:
-        score = compute_exercise_score(ex, fatigue, weekly_load, sore, history, config)
+        score = compute_exercise_score(ex, fatigue, weekly_load, sore, recency, config)
         print(f"  [{ex['pattern']:10s}] {ex['name']:25s}  score={score:.2f}")

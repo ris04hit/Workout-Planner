@@ -11,6 +11,7 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 | Version | Date | Summary |
 |---|---|---|
+| [v1.1.0](versions/v1.1.0.md) | 2026-05-02 | Smarter recency scoring, lean workout storage, and workout UI polish |
 | [v1.0.0](versions/v1.0.0.md) | 2026-04-27 | Initial release — full working application |
 
 ---

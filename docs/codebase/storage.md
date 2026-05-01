@@ -74,6 +74,8 @@ with open(file_path, 'w') as f:
 
 ### Data shape
 
+Saved workouts intentionally keep only logging data. Exercise-library metadata (`pattern`, `family`, `muscles`, descriptions, difficulty, priority, enabled) is not persisted in workout history. The frontend enriches history entries from the current exercise library when it needs labels, chips, or descriptions.
+
 ```json
 [
   {
@@ -115,6 +117,10 @@ Date prefix makes IDs human-readable and sortable. The millisecond timestamp + 4
 - Same exercise names (sorted, case-sensitive)
 
 Raises `ValueError` if duplicate → API returns HTTP 409.
+
+### Metadata cleanup migration
+
+`migrate_strip_exercise_meta()` runs once at app startup and is idempotent. It scans `data/default/workouts.json` and every `data/users/<username>/workouts.json`, removing stale exercise-library metadata from old workout entries. It leaves `name`, `mode`, and `sets` intact.
 
 ### Backward-compatible deletion
 

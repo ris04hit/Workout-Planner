@@ -154,6 +154,7 @@ The **Workout Builder** section is collapsible (click the heading to expand/coll
 
 **Step 1 — Review the suggested exercises**
 - The workout area shows exercise cards for the selected session
+- Exercise cards are collapsible; collapsed cards show a set-count badge after sets are added
 
 **Step 2 — Log each exercise**
 - Each exercise card has a mode selector: **Reps** or **Time**
@@ -165,7 +166,7 @@ The **Workout Builder** section is collapsible (click the heading to expand/coll
 **Step 3 — Save the workout**
 - Click **Save Workout**
 - The app saves the workout with today's date; fatigue and weekly load are recomputed from history on the next suggestion
-- A confirmation alert appears when saved
+- Workout history stores only exercise name, mode, and sets; current exercise-library metadata is re-applied when displaying or editing past workouts
 
 **Editing a past workout**
 - Go to the **History** section
@@ -192,6 +193,11 @@ Expand the **Config** section to tune the suggestion algorithm.
 | `muscle_usage_limit` | Stop adding exercises once this fraction of a muscle's capacity is committed |
 | `sore_block_threshold` | Contribution fraction above which a sore muscle blocks an exercise |
 | `fatigue_block_threshold` | Fatigue level above which a muscle blocks further exercises |
+| `fatigue_block_contribution` | Contribution fraction required before fatigue can hard-block an exercise |
+| `recency_penalty` | Score penalty when the exact exercise was performed recently |
+| `family_recency_penalty` | Smaller score penalty when another exercise from the same family was performed recently |
+| `recency_decay` | Per-day decay for exercise and family repeat penalties |
+| `min_score_threshold` | Normal-pass score floor; low-scoring exercises are skipped unless fallback is needed |
 
 **Saving config**
 1. Adjust values in the form
@@ -231,8 +237,9 @@ Each exercise has:
 
 **Enable / disable**
 - Use the toggle next to each exercise — disabled exercises are kept in the library but never suggested
+- Suggested exercises also include a **Disable** button for quickly removing an exercise from future suggestions
 
-> Changes take effect on the next **Generate Workout**.
+> Changes refresh suggestions immediately.
 
 ---
 
@@ -241,7 +248,7 @@ Each exercise has:
 Expand the **History** section to view all logged workouts.
 
 - Workouts are listed newest first
-- Each entry shows: **date** and all **exercises with sets**
+- Each entry is collapsible and shows: **date**, exercise count, set count, and all **exercises with sets**
 - Click **Edit** to load a past workout into the Workout Logging section
 - Click **Delete** to permanently remove a workout
 

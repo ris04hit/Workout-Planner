@@ -15,7 +15,8 @@ export const state = {
   weeklyLoad: {},
   overrideMode: false,   // true when user has overridden the "already done today" lock
   ui: {
-    exerciseMap: {} // { exerciseName: { id, name } }
+    exerciseMap: {},  // { exerciseName: { id, name } }
+    skipPrefill: false // suppresses preFillSetsFromHistory when loading a specific workout for editing
   }
 };
 

@@ -148,11 +148,12 @@ Alias for `GET /api/workout`. Returns identical data.
 
 ### `POST /api/workout`
 
-Saves a new workout. Rejects duplicates (same date + same exercise names).
+Saves a new workout. Rejects a second workout for the same day unless the client sends `force: true`; duplicate date + exercise-name combinations are also rejected.
 
 **Request body**
 ```json
 {
+  "force": false,
   "exercises": [
     {
       "name": "Squat",
@@ -167,7 +168,8 @@ Saves a new workout. Rejects duplicates (same date + same exercise names).
 
 | Field | Type | Rules |
 |---|---|---|
-| `exercises` | object[] | Can be empty `[]` |
+| `force` | bool | Optional. When `true`, allows another workout to be logged today |
+| `exercises` | object[] | Required; must include at least one exercise |
 | `exercise.name` | string | Non-empty |
 | `exercise.mode` | string | `"reps"` or `"time"` |
 | `set.reps` | int | Positive; required when `mode == "reps"` |
@@ -181,7 +183,7 @@ Saves a new workout. Rejects duplicates (same date + same exercise names).
 | Status | Condition |
 |---|---|
 | `400` | Validation failure |
-| `409` | `{ "status": "duplicate", "error": "..." }` |
+| `409` | `{ "status": "already_done", "error": "...", "today_workout_id": "..." }` or `{ "status": "duplicate", "error": "..." }` |
 | `500` | Unexpected server error |
 
 ---
@@ -239,8 +241,9 @@ Computes fatigue and weekly load from workout history, scores all exercises, and
   },
   "fatigue":      { "QUADS": 0.4, "HAMSTRINGS": 0.0 },
   "weekly_load":  { "QUADS": 1.6, "CHEST": 0.8 },
-  "all_scores":   { "Squat": 8.2, "Deadlift": 9.1 },
-  "done_today":   false
+  "all_scores":   [ { "name": "Squat", "_score": 8.2, "_selected": false, "_blocked": false } ],
+  "already_done_today": false,
+  "today_workout_id": null
 }
 ```
 
@@ -393,17 +396,17 @@ Returns the stored user config overrides merged with defaults. See `data/default
 {
   "muscle_weights": {
     "QUADS": 2.5, "GLUTES": 2.5, "HAMSTRINGS": 2.5, "CALVES": 1.0,
-    "CHEST": 2.5, "SHOULDERS": 2.0, "TRICEPS": 1.5,
-    "LATS": 2.5, "BICEPS": 1.5, "REAR_DELTS": 1.0, "FOREARMS": 1.0,
-    "CORE": 2.0
+    "CHEST": 2.5, "SHOULDERS": 2.2, "TRICEPS": 1.2,
+    "LATS": 2.5, "BICEPS": 1.2, "REAR_DELTS": 1.0, "FOREARMS": 0.8,
+    "CORE": 2.5
   },
-  "fatigue_decay": 0.85,
-  "max_difficulty_allowed": 5,
-  "target_exercise_count": 6,
+  "fatigue_decay": 0.8,
+  "max_difficulty_allowed": 2,
+  "target_exercise_count": 4,
   "pattern_limits": {
     "SQUAT": 2, "HINGE": 2, "PUSH": 3, "PULL": 3, "CORE": 2, "ACCESSORY": 3
   },
-  "muscle_usage_limit": 1.4,
+  "muscle_usage_limit": 1.2,
   "sore_block_threshold": 0.6,
   "fatigue_block_threshold": 0.9,
   "fatigue_block_contribution": 0.5,
@@ -421,8 +424,10 @@ Returns the stored user config overrides merged with defaults. See `data/default
     "weekly_boost_below_min": 1.25,
     "weekly_boost_below_mid": 0.5,
     "priority_coeff": 0.2,
-    "recency_penalty": 1.5,
-    "recency_history_sessions": 2
+    "recency_penalty": 2.5,
+    "family_recency_penalty": 1.0,
+    "recency_decay": 0.65,
+    "min_score_threshold": 1.0
   }
 }
 ```
@@ -432,7 +437,7 @@ Returns the stored user config overrides merged with defaults. See `data/default
 | Key | Description |
 |---|---|
 | `muscle_weights` | Per-muscle importance in readiness scoring |
-| `fatigue_decay` | Daily fatigue multiplier (0.85 = 15% clears per rest day) |
+| `fatigue_decay` | Daily fatigue multiplier (0.8 = 20% clears per rest day) |
 | `max_difficulty_allowed` | Hard ceiling on exercise difficulty |
 | `target_exercise_count` | Target exercises per session |
 | `pattern_limits` | Max exercises per movement pattern per session |
@@ -446,8 +451,10 @@ Returns the stored user config overrides merged with defaults. See `data/default
 | `scoring.scaling_exponent` | Sublinear scaling exponent (`< 1` reduces compound advantage) |
 | `scoring.weekly_boost_*` | Weekly boost magnitudes for untrained / below-min / below-mid |
 | `scoring.priority_coeff` | Points added per unit of priority (1–5) |
-| `scoring.recency_penalty` | Score reduction for recently repeated exercises |
-| `scoring.recency_history_sessions` | How many recent sessions to check for recency penalty |
+| `scoring.recency_penalty` | Score reduction when the exact exercise was performed recently |
+| `scoring.family_recency_penalty` | Score reduction when any exercise from the same family was performed recently |
+| `scoring.recency_decay` | Per-day multiplier for exercise and family recency penalties |
+| `scoring.min_score_threshold` | Normal-pass score floor; fallback ignores it so a workout can still be returned |
 
 ---
 

@@ -18,6 +18,7 @@ The server scores every exercise in the library against current fatigue, weekly 
 |---|---|
 | `src/core_logic.py` | ⭐ Exercise scoring + greedy session selection; fatigue/load computed from history |
 | `src/storage/base.py` | `_read` / `_write` + user context — all other storage modules build on this |
+| `src/storage/workouts.py` | Workout CRUD, lean workout persistence, progress calc, metadata cleanup migration |
 | `src/app.py` | Flask app factory; registers all route modules |
 | `static/js/main.js` | Browser entry point; init sequence + event delegation |
 | `static/js/state.js` | Single shared state object + `MUSCLE_ORDER` / `PATTERN_ORDER` |
@@ -63,7 +64,7 @@ src/
   storage/
     __init__.py           Re-exports all public storage functions
     base.py               _read / _write / user context (_current_user)
-    workouts.py           Workout CRUD, duplicate check, progress calc
+    workouts.py           Workout CRUD, lean persistence, duplicate check, progress calc
     exercises.py          Flat exercise list + soreness, default fallback
     config.py             Config save/load/history/revert/reset
     users.py              User list, create, delete
@@ -130,23 +131,27 @@ compute_fatigue_from_history(workouts, config, today, exercise_defs)
 compute_weekly_load_from_history(workouts, today, exercise_defs)
   → { MUSCLE: load_float }      # rolling 7-day contribution sum
 
-select_workout(exercises, fatigue, weekly_load, soreness, config, workouts)
-  → { exercises: [...], all_scores: {...}, done_today: bool }
+select_workout(fatigue, weekly_load, soreness, recency, exercises, config, family_recency)
+  → selected exercise list; /api/suggest also returns all_scores and already_done_today
 ```
 
 Score per exercise:
 ```
-readiness  = sum(muscle_weight × (1 - fatigue[m]) × contribution[m] ^ exponent)
-           × weekly_boost_factor(weekly_load[m], weekly_targets[m])
-score      = readiness + priority_coeff × priority - recency_penalty
-           (sore muscles apply sore_penalty_factor multiplicatively)
+readiness = (sum(contribution[m] * muscle_weight[m] * (1 - fatigue[m])^2)) ^ scaling_exponent
+score     = readiness
+          + sum(contribution[m] * weekly_bonus[m])
+          + priority_coeff * priority
+          - recency_penalty * recency_decay^days_since_exercise
+          - family_recency_penalty * recency_decay^days_since_family
+          - sum(contribution[m] * sore_penalty_factor for sore muscles)
 ```
 
 Hard filters (any one blocks the exercise):
-- Exercise or any muscle above fatigue/sore threshold
+- Disabled exercise, difficulty above limit, or any muscle above fatigue/sore threshold
 - Pattern limit reached (`pattern_limits`)
 - Family already selected (deduplication)
 - Muscle saturation (`muscle_usage_limit`)
+- Score below `scoring.min_score_threshold` during the normal pass
 
 → Full explanation: `docs/codebase/suggestion-algorithm.md` and `docs/codebase/exercise-picker.md`
 

@@ -34,7 +34,7 @@ import './user-manager.js';
 
 // ---- Event delegation ----
 
-document.addEventListener('click', (e) => {
+document.addEventListener('click', async (e) => {
   // Use closest() so clicks on child elements of a button are still caught.
 
   const addSetBtn = e.target.closest('[data-add-set]');
@@ -50,10 +50,22 @@ document.addEventListener('click', (e) => {
   if (deleteBtn) { deleteWorkout(deleteBtn.getAttribute('data-delete')); return; }
 
   const revertBtn = e.target.closest('[data-revert-config]');
-  if (revertBtn) { revertConfigFromHistory(Number(revertBtn.getAttribute('data-revert-config'))); return; }
+  if (revertBtn) { e.preventDefault(); revertConfigFromHistory(Number(revertBtn.getAttribute('data-revert-config'))); return; }
 
   const addExerciseBtn = e.target.closest('[data-add-exercise]');
-  if (addExerciseBtn) { addExerciseToUI(addExerciseBtn.getAttribute('data-add-exercise')); return; }
+  if (addExerciseBtn) { e.preventDefault(); addExerciseToUI(addExerciseBtn.getAttribute('data-add-exercise')); return; }
+
+  const disableExBtn = e.target.closest('[data-disable-exercise]');
+  if (disableExBtn) {
+    const name = disableExBtn.getAttribute('data-disable-exercise');
+    const ex = state.muscles.find(m => m.name === name);
+    if (ex) {
+      ex.enabled = false;
+      await saveExercisesFromUI(true);
+      await loadSuggestion();
+    }
+    return;
+  }
 
   const deleteExerciseBtn = e.target.closest('[data-delete-exercise]');
   if (deleteExerciseBtn) {
@@ -84,7 +96,7 @@ document.addEventListener('change', (e) => {
   if (enableIdx !== null) {
     const item = e.target.closest('.exercise-item');
     if (item) item.classList.toggle('ex-disabled', !e.target.checked);
-    saveExercisesFromUI(true);
+    saveExercisesFromUI(true).then(() => loadSuggestion());
   }
 });
 

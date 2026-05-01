@@ -70,14 +70,7 @@ export async function saveWorkout() {
     for (const entry of Object.values(state.ui.exerciseMap)) {
       const mode = document.getElementById(`mode-${entry.id}`)?.value || 'reps';
       const sets = collectSets(entry.id);
-      exercises.push({
-        name: entry.name,
-        pattern: entry.pattern || '',
-        family: entry.family || '',
-        muscles: entry.muscles || {},
-        mode,
-        sets
-      });
+      exercises.push({ name: entry.name, mode, sets });
     }
 
     let res;
@@ -107,7 +100,6 @@ export async function saveWorkout() {
     }
 
     state.overrideMode = false;
-    alert('Workout Saved');
     await loadSuggestion();
   } catch (e) {
     if (e.status === 409 && e.payload?.status === 'already_done') {
@@ -140,28 +132,58 @@ export async function loadHistory() {
     return;
   }
 
-  history.slice().reverse().forEach(w => {
-    let html = `
-      <div class="history-item">
-        <b>Date:</b> ${w.date}<br>
-        <button data-edit="${w.id || w.date}">Edit</button>
-        <button data-delete="${w.id || w.date}" class="danger">Delete</button>
+  history.slice().reverse().forEach((w, i) => {
+    const enriched = (w.exercises || []).map(ex => {
+      const lib = (state.muscles || []).find(m => m.name === ex.name);
+      return lib ? { ...lib, ...ex } : ex;
+    });
+    const exCount  = enriched.length;
+    const setCount = enriched.reduce((n, ex) => n + (ex.sets || []).length, 0);
+    const meta = `${exCount} exercise${exCount !== 1 ? 's' : ''}` +
+                 (setCount ? ` · ${setCount} set${setCount !== 1 ? 's' : ''}` : '');
+
+    const summary = document.createElement('summary');
+    summary.className = 'history-summary';
+    summary.innerHTML = `
+      <span class="history-date">${w.date}</span>
+      <span class="history-meta">${meta}</span>
     `;
 
-    w.exercises.forEach(ex => {
-      html += `<div style="margin-left:10px; margin-top:6px;"><b>${ex.name}</b> <span class="group-role-label">${ex.pattern || ''}</span>`;
-      (ex.sets || []).forEach(s => {
-        if (s.reps !== undefined) {
-          html += `<div style="margin-left:10px;">${s.reps} reps @ ${s.weight ?? 0}kg</div>`;
-        } else {
-          html += `<div style="margin-left:10px;">${s.duration_sec}s @ ${s.weight ?? 0}kg</div>`;
-        }
-      });
-      html += `</div>`;
+    const body = document.createElement('div');
+    body.className = 'history-body';
+
+    const actions = document.createElement('div');
+    actions.className = 'history-actions';
+    actions.innerHTML = `
+      <button data-edit="${w.id || w.date}">Edit</button>
+      <button data-delete="${w.id || w.date}" class="danger">Delete</button>
+    `;
+    body.appendChild(actions);
+
+    enriched.forEach(ex => {
+      const setsHtml = (ex.sets || []).map(s =>
+        s.reps !== undefined
+          ? `<div class="history-set">${s.reps} reps @ ${s.weight ?? 0} kg</div>`
+          : `<div class="history-set">${s.duration_sec}s @ ${s.weight ?? 0} kg</div>`
+      ).join('');
+      const exDiv = document.createElement('div');
+      exDiv.className = 'history-exercise';
+      exDiv.innerHTML = `
+        <div class="history-exercise-header">
+          <b class="history-exercise-name">${ex.name}</b>
+          ${ex.pattern ? `<span class="group-role-label">${ex.pattern}</span>` : ''}
+        </div>
+        ${setsHtml}
+      `;
+      body.appendChild(exDiv);
     });
 
-    html += `</div>`;
-    container.innerHTML += html;
+    const item = document.createElement('details');
+    item.className = 'history-item';
+    if (i === 0) item.setAttribute('open', '');
+    item.appendChild(summary);
+    item.appendChild(body);
+    container.appendChild(item);
   });
 }
 
@@ -173,27 +195,38 @@ export async function editWorkout(id) {
   if (!workout) return;
 
   editingWorkoutId = id;
-  state.exercises = workout.exercises || [];
+  // Merge library data (description, etc.) into history exercises so instructions are visible
+  state.exercises = (workout.exercises || []).map(ex => {
+    const libEx = (state.muscles || []).find(m => m.name === ex.name);
+    return libEx ? { ...libEx, ...ex } : ex;
+  });
 
+  state.ui.skipPrefill = true;
   renderSuggestion(state.exercises, {});
   renderWorkoutUI();
+  state.ui.skipPrefill = false;
+
+  // Open the Log Workout card and scroll to it so the user sees the edit
+  const logCard = document.getElementById('workout')?.closest('details');
+  if (logCard) logCard.open = true;
+  document.getElementById('workout')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   setTimeout(async () => {
     for (const ex of workout.exercises) {
       const entry = state.ui.exerciseMap[ex.name];
       if (!entry) continue;
 
-      await new Promise(resolve => setTimeout(resolve, 50));
-
       const setsDiv = document.getElementById(`sets-${entry.id}`);
       if (!setsDiv) continue;
 
+      const isTimeBased = (ex.sets || []).some(s => s.duration_sec !== undefined);
+      const modeEl = document.getElementById(`mode-${entry.id}`);
+      if (modeEl) modeEl.value = isTimeBased ? 'time' : 'reps';
+
       for (let i = 0; i < (ex.sets || []).length; i++) {
         const s = ex.sets[i];
-        if (i > 0) {
-          await addSet(entry.id);
-          await new Promise(resolve => setTimeout(resolve, 50));
-        }
+        await addSet(entry.id);
+        await new Promise(resolve => setTimeout(resolve, 30));
         const rows = setsDiv.children;
         const lastRow = rows[rows.length - 1];
         if (!lastRow) continue;
@@ -208,7 +241,10 @@ export async function editWorkout(id) {
         if (wEl) wEl.value = s.weight ?? '';
       }
     }
-  }, 100);
+
+    // Open all exercise cards so the pre-filled sets are visible when editing
+    document.querySelectorAll('#workout details.exercise').forEach(d => { d.open = true; });
+  }, 50);
 }
 
 export async function deleteWorkout(id) {

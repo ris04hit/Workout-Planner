@@ -46,6 +46,7 @@ export const state = {
   workouts: [],       // full workout history
   ui: {
     exerciseMap: {}, // { exerciseName: { id, name } } — rendered cards
+    skipPrefill: false // true while editing an existing workout
   }
 };
 
@@ -132,15 +133,21 @@ Calls `GET /api/suggest`, stores `state.exercises`, `state.fatigue`, `state.week
 ### `saveWorkout()`
 
 1. For each exercise card, reads mode select + calls `collectSets(exerciseId)`
-2. If editing (`editingWorkoutId` is set): sends `PUT /api/workout/:id`
-3. Otherwise: sends `POST /api/workout`
-4. On success: reloads history and re-runs `loadSuggestion()`
+2. Sends only `{ name, mode, sets }` for each exercise; library metadata stays out of workout history
+3. If editing (`editingWorkoutId` is set): sends `PUT /api/workout/:id`
+4. Otherwise: sends `POST /api/workout`
+5. On success: reloads history and re-runs `loadSuggestion()`
 
 ### `editWorkout(id)`
 
 1. Fetches history, finds the workout by id
-2. Calls `renderWorkoutUI()` with the workout's exercises
-3. After a 100ms delay (for DOM to settle), fills each exercise's sets from stored data
+2. Enriches saved exercises from `state.muscles` so current library labels/descriptions are available
+3. Calls `renderWorkoutUI()` with `state.ui.skipPrefill = true` so last-session prefill does not mix with the edited workout
+4. Opens the logging card, scrolls to it, fills each exercise's sets from stored data, and opens the exercise cards
+
+### Disable suggested exercise
+
+The suggestion list includes a Disable action. It marks the exercise disabled in `state.muscles`, saves the exercise list, and reloads suggestions immediately.
 
 ### Soreness change
 

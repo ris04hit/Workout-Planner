@@ -36,8 +36,10 @@
     "weekly_boost_below_min": 1.25,
     "weekly_boost_below_mid": 0.5,
     "priority_coeff": 0.2,
-    "recency_penalty": 1.5,
-    "recency_history_sessions": 2
+    "recency_penalty": 2.5,
+    "family_recency_penalty": 1.0,
+    "recency_decay": 0.65,
+    "min_score_threshold": 1.0
   },
   "weekly_targets": {
     "QUADS": {

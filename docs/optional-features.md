@@ -35,7 +35,7 @@ This file is gitignored — for personal planning only.
 - **Avoid injury mode** — flag a **muscle** as injured (not just sore); hard-blocked from any exercise with contribution ≥ threshold for a configurable N days with no override
 - **Temporary muscle priority boost** — UI option to temporarily raise a muscle's `muscle_weights` value for 1–4 weeks (stored with an expiry timestamp in config)
 - **"Train everything" mode** — ignore weekly targets and select one exercise per pattern to give every movement pattern equal exposure; useful for deload or skill weeks
-- **Same-exercise avoidance window** — per-exercise config field specifying minimum days between appearances (separate from the global `recency_history_sessions`)
+- **Same-exercise avoidance window** — per-exercise config field specifying minimum days between appearances (separate from the global day-based recency penalty)
 - **Negative contribution support** — allow a muscle contribution of `< 0` to model antagonist inhibition (e.g. heavy pec work reducing shoulder readiness)
 
 ---
@@ -49,7 +49,7 @@ This file is gitignored — for personal planning only.
 - **Equipment filter** — tag each exercise with required equipment (Barbell, Dumbbell, Cable, Machine, Bodyweight, Kettlebell); filter picker by what is available today
 - **Exercise library / descriptions** — optional `description` and `cues` fields in `exercises.json`; displayed as a tooltip or expandable card in the workout UI
 - **Exercise aliases** — `aliases: ["Pull-up", "Chin-up"]` field; progress history from all alias names merged when computing best/last
-- **Per-exercise minimum rest days** — `min_rest_days` field in the exercise definition; overrides the global `recency_history_sessions` for that exercise specifically (e.g. Deadlift: 3 days)
+- **Per-exercise minimum rest days** — `min_rest_days` field in the exercise definition; overrides the global day-based recency penalty for that exercise specifically (e.g. Deadlift: 3 days)
 - **Exercise import** — paste a list of exercise names + patterns and auto-populate contribution maps using a pre-built lookup table or a user-editable template
 - **Reorder exercises** — drag-and-drop reordering of exercises within the exercise list; order affects tiebreaking in the selection loop
 

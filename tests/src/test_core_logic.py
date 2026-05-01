@@ -101,23 +101,23 @@ class TestComputeExerciseScore(unittest.TestCase):
     def cfg(self): return get_effective_config()
 
     def test_fresh_scores_higher_than_tired(self):
-        s_fresh = compute_exercise_score(SQUAT, {}, {}, {}, [], self.cfg())
-        s_tired = compute_exercise_score(SQUAT, {"QUADS": 0.9, "GLUTES": 0.9}, {}, {}, [], self.cfg())
+        s_fresh = compute_exercise_score(SQUAT, {}, {}, {}, {}, self.cfg())
+        s_tired = compute_exercise_score(SQUAT, {"QUADS": 0.9, "GLUTES": 0.9}, {}, {}, {}, self.cfg())
         self.assertGreater(s_fresh, s_tired)
 
     def test_sore_reduces_score(self):
-        s_normal = compute_exercise_score(SQUAT, {}, {}, {}, [], self.cfg())
-        s_sore   = compute_exercise_score(SQUAT, {}, {}, {"QUADS": True}, [], self.cfg())
+        s_normal = compute_exercise_score(SQUAT, {}, {}, {}, {}, self.cfg())
+        s_sore   = compute_exercise_score(SQUAT, {}, {}, {"QUADS": True}, {}, self.cfg())
         self.assertGreater(s_normal, s_sore)
 
     def test_repetition_penalty(self):
-        s_fresh    = compute_exercise_score(SQUAT, {}, {}, {}, [], self.cfg())
-        s_repeated = compute_exercise_score(SQUAT, {}, {}, {}, ["Squat"], self.cfg())
+        s_fresh    = compute_exercise_score(SQUAT, {}, {}, {}, {}, self.cfg())
+        s_repeated = compute_exercise_score(SQUAT, {}, {}, {}, {"Squat": 0}, self.cfg())
         self.assertGreater(s_fresh, s_repeated)
 
     def test_higher_priority_increases_score(self):
-        low_p  = compute_exercise_score({**SQUAT, "priority": 1}, {}, {}, {}, [], self.cfg())
-        high_p = compute_exercise_score({**SQUAT, "priority": 5}, {}, {}, {}, [], self.cfg())
+        low_p  = compute_exercise_score({**SQUAT, "priority": 1}, {}, {}, {}, {}, self.cfg())
+        high_p = compute_exercise_score({**SQUAT, "priority": 5}, {}, {}, {}, {}, self.cfg())
         self.assertGreater(high_p, low_p)
 
 
@@ -125,19 +125,19 @@ class TestSelectWorkout(unittest.TestCase):
     def cfg(self, **kw): return get_effective_config({"target_exercise_count": 3, **kw})
 
     def test_returns_list(self):
-        self.assertIsInstance(select_workout({}, {}, {}, [], EXERCISES, self.cfg()), list)
+        self.assertIsInstance(select_workout({}, {}, {}, {}, EXERCISES, self.cfg()), list)
 
     def test_up_to_target(self):
-        result = select_workout({}, {}, {}, [], EXERCISES, self.cfg())
+        result = select_workout({}, {}, {}, {}, EXERCISES, self.cfg())
         self.assertLessEqual(len(result), 3)
 
     def test_disabled_not_selected(self):
-        result = select_workout({}, {}, {}, [], EXERCISES, self.cfg())
+        result = select_workout({}, {}, {}, {}, EXERCISES, self.cfg())
         self.assertNotIn("Disabled", [e["name"] for e in result])
 
     def test_fallback_returns_something(self):
         sore = {m: True for m in ("QUADS", "GLUTES", "CHEST", "TRICEPS", "CORE")}
-        result = select_workout({}, {}, sore, [], EXERCISES, self.cfg())
+        result = select_workout({}, {}, sore, {}, EXERCISES, self.cfg())
         self.assertGreater(len(result), 0)
 
     def test_pattern_limit_respected(self):
@@ -147,7 +147,7 @@ class TestSelectWorkout(unittest.TestCase):
             for i in range(10)
         ]
         cfg = get_effective_config({"target_exercise_count": 10, "pattern_limits": {"PUSH": 2}})
-        result = select_workout({}, {}, {}, [], many, cfg)
+        result = select_workout({}, {}, {}, {}, many, cfg)
         self.assertLessEqual(sum(1 for e in result if e["pattern"] == "PUSH"), 2)
 
     def test_family_deduplication(self):
@@ -158,7 +158,7 @@ class TestSelectWorkout(unittest.TestCase):
              "pattern": "PUSH", "family": "PRESS", "muscles": {"CHEST": 0.7}},
         ]
         cfg = get_effective_config({"target_exercise_count": 5})
-        result = select_workout({}, {}, {}, [], two_press, cfg)
+        result = select_workout({}, {}, {}, {}, two_press, cfg)
         press = [e["name"] for e in result if e["family"] == "PRESS"]
         self.assertLessEqual(len(press), 1)
 
@@ -172,7 +172,7 @@ class TestSelectWorkout(unittest.TestCase):
              "pattern": "PUSH", "family": "FB", "muscles": {"CHEST": 0.8}},
         ]
         cfg = get_effective_config({"target_exercise_count": 1, "pattern_limits": {"PUSH": 1}})
-        result = select_workout({}, {}, {}, [], identical, cfg)
+        result = select_workout({}, {}, {}, {}, identical, cfg)
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["name"], "A", "First exercise should win on equal score")
 
@@ -186,8 +186,7 @@ class TestSelectWorkout(unittest.TestCase):
         ]
         cfg = get_effective_config({"target_exercise_count": 1, "pattern_limits": {"PUSH": 1}})
         # A was done 1 day ago, B was done 10 days ago — B should win the tie
-        last_done = {"A": 1, "B": 10}
-        result = select_workout({}, {}, {}, [], identical, cfg, last_done_days=last_done)
+        result = select_workout({}, {}, {}, {"A": 1, "B": 10}, identical, cfg)
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["name"], "B", "Less recently done exercise should win tie")
 
@@ -201,7 +200,7 @@ class TestSelectWorkout(unittest.TestCase):
         ]
         cfg = get_effective_config({"target_exercise_count": 1, "pattern_limits": {"PUSH": 1}})
         # A done recently; B never done — B should win
-        result = select_workout({}, {}, {}, [], identical, cfg, last_done_days={"A": 2})
+        result = select_workout({}, {}, {}, {"A": 2}, identical, cfg)
         self.assertEqual(result[0]["name"], "B", "Never-done exercise should beat recently done on tie")
 
 
@@ -250,41 +249,41 @@ class TestScoreExerciseBreakdown(unittest.TestCase):
     def cfg(self): return get_effective_config()
 
     def test_returns_all_keys(self):
-        bd = score_exercise_breakdown(SQUAT, {}, {}, {}, [], self.cfg())
+        bd = score_exercise_breakdown(SQUAT, {}, {}, {}, {}, self.cfg())
         for key in ("total", "readiness", "weekly_boost", "priority",
                     "recency_penalty", "soreness_penalty", "contribution_capped"):
             self.assertIn(key, bd)
 
     def test_readiness_positive_when_fresh(self):
-        bd = score_exercise_breakdown(SQUAT, {}, {}, {}, [], self.cfg())
+        bd = score_exercise_breakdown(SQUAT, {}, {}, {}, {}, self.cfg())
         self.assertGreater(bd["readiness"], 0)
 
     def test_recency_penalty_when_in_history(self):
         cfg = self.cfg()
-        expected = -cfg["scoring"]["recency_penalty"]
-        bd = score_exercise_breakdown(SQUAT, {}, {}, {}, ["Squat"], cfg)
+        expected = -cfg["scoring"]["recency_penalty"]  # decay^0 = 1.0
+        bd = score_exercise_breakdown(SQUAT, {}, {}, {}, {"Squat": 0}, cfg)
         self.assertAlmostEqual(bd["recency_penalty"], expected)
 
     def test_recency_zero_when_not_in_history(self):
-        bd = score_exercise_breakdown(SQUAT, {}, {}, {}, [], self.cfg())
+        bd = score_exercise_breakdown(SQUAT, {}, {}, {}, {}, self.cfg())
         self.assertAlmostEqual(bd["recency_penalty"], 0.0)
 
     def test_soreness_penalty_negative_when_sore(self):
-        bd = score_exercise_breakdown(SQUAT, {}, {}, {"QUADS": True}, [], self.cfg())
+        bd = score_exercise_breakdown(SQUAT, {}, {}, {"QUADS": True}, {}, self.cfg())
         self.assertLess(bd["soreness_penalty"], 0)
 
     def test_contribution_capped_true_when_over_limit(self):
         heavy = {**SQUAT, "muscles": {"CHEST": 0.8, "TRICEPS": 0.5, "SHOULDERS": 0.3}}  # 1.6
-        bd = score_exercise_breakdown(heavy, {}, {}, {}, [], self.cfg())
+        bd = score_exercise_breakdown(heavy, {}, {}, {}, {}, self.cfg())
         self.assertTrue(bd["contribution_capped"])
 
     def test_contribution_capped_false_when_under_limit(self):
         # PLANK has only CORE: 0.9 — safely below any default max_total_contribution
-        bd = score_exercise_breakdown(PLANK, {}, {}, {}, [], self.cfg())
+        bd = score_exercise_breakdown(PLANK, {}, {}, {}, {}, self.cfg())
         self.assertFalse(bd["contribution_capped"])
 
     def test_total_equals_sum_of_components(self):
-        bd = score_exercise_breakdown(SQUAT, {}, {}, {}, [], self.cfg())
+        bd = score_exercise_breakdown(SQUAT, {}, {}, {}, {}, self.cfg())
         expected = (bd["readiness"] + bd["weekly_boost"] + bd["priority"]
                     + bd["recency_penalty"] + bd["soreness_penalty"])
         self.assertAlmostEqual(bd["total"], expected, places=1)
@@ -311,10 +310,10 @@ class TestScoringConfig(unittest.TestCase):
                      "muscles": {"BICEPS": 0.8}}
         cfg_linear    = get_effective_config({"scoring": {"scaling_exponent": 1.0}})
         cfg_sublinear = get_effective_config({"scoring": {"scaling_exponent": 0.5}})
-        ratio_linear    = (compute_exercise_score(compound,  {}, {}, {}, [], cfg_linear) /
-                           compute_exercise_score(isolation, {}, {}, {}, [], cfg_linear))
-        ratio_sublinear = (compute_exercise_score(compound,  {}, {}, {}, [], cfg_sublinear) /
-                           compute_exercise_score(isolation, {}, {}, {}, [], cfg_sublinear))
+        ratio_linear    = (compute_exercise_score(compound,  {}, {}, {}, {}, cfg_linear) /
+                           compute_exercise_score(isolation, {}, {}, {}, {}, cfg_linear))
+        ratio_sublinear = (compute_exercise_score(compound,  {}, {}, {}, {}, cfg_sublinear) /
+                           compute_exercise_score(isolation, {}, {}, {}, {}, cfg_sublinear))
         self.assertLess(ratio_sublinear, ratio_linear)
 
 

@@ -14,10 +14,10 @@ STATE → SCORE → SELECT → UPDATE
 
 | Stage | What happens |
 |---|---|
-| **STATE** | Load today's fatigue, weekly load, soreness, and recent workout history |
+| **STATE** | Load today's fatigue, weekly load, soreness, and exercise/family recency from workout history |
 | **SCORE** | Compute a numeric score for every enabled exercise |
 | **SELECT** | Greedily pick exercises that maximise total score while respecting hard limits |
-| **UPDATE** | After saving a workout, write back new fatigue and weekly-load values |
+| **UPDATE** | After saving a workout, persist the workout; fatigue and weekly load are recomputed from history |
 
 ---
 
@@ -32,9 +32,9 @@ A `dict[muscle → float ∈ [0, 1]]`. `1.0` = fully fatigued, `0.0` = fully fre
   ```
 - **Decay:** applied once per day (on page load):
   ```
-  fatigue[m] *= fatigue_decay          # default 0.85
+  fatigue[m] *= fatigue_decay          # default 0.8
   ```
-  After ~5 days without training a muscle, fatigue drops below 0.44.
+  After ~5 days without training a muscle, fatigue drops below 0.33.
 
 ### Weekly Load (`weekly_load`)
 A `dict[muscle → float]` — cumulative muscle contributions logged **this week**. Resets every Monday. Used by the weekly boost component of the score.
@@ -42,8 +42,12 @@ A `dict[muscle → float]` — cumulative muscle contributions logged **this wee
 ### Soreness (`sore`)
 A `dict[muscle → bool]` — set manually by the user via the soreness panel. A `True` entry both hard-blocks and soft-penalises exercises heavily using that muscle.
 
-### History
-A list of exercise names logged **in the last session**. Used for the recency penalty.
+### Recency
+Two maps derived from the full workout history:
+- `recency`: `{ exercise_name: days_since_last_performed }`
+- `family_recency`: `{ family: days_since_any_family_member_last_performed }`
+
+They drive exact-exercise and same-family repeat penalties.
 
 ---
 
@@ -57,7 +61,8 @@ Each exercise receives a scalar score. Higher = better.
 score = sublinear(readiness_sum)
       + weekly_boost
       + priority_bonus
-      - recency_penalty
+      - exercise_recency_penalty
+      - family_recency_penalty
       - soreness_penalty
 ```
 
@@ -71,7 +76,7 @@ if total > max_total:
     contributions[m] *= (max_total / total)   # preserves ratios
 ```
 
-**Why?** Compound exercises (Squat: quads 0.8, glutes 0.6, hamstrings 0.4 → total 1.8) would otherwise dwarf isolation movements. Capping at 1.5 keeps them competitive without eliminating their natural advantage.
+**Why?** Compound exercises (Squat: quads 0.8, glutes 0.6, hamstrings 0.4 → total 1.8) would otherwise dwarf isolation movements. Capping at 1.3 keeps them competitive without eliminating their natural advantage.
 
 The UI badge shows "⚡ Contributions capped" when this fires.
 
@@ -88,16 +93,16 @@ The `(1 − f)²` curve makes readiness drop sharply as fatigue approaches 1 (qu
 ### 2c — Sublinear Scaling
 
 ```
-scaled_readiness = raw_readiness ^ scaling_exponent    # default α = 0.85
+scaled_readiness = raw_readiness ^ scaling_exponent    # default alpha = 0.8
 ```
 
-Applying `x^0.85` (sublinear) compresses the gap between compound and isolation exercises:
+Applying `x^0.8` (sublinear) compresses the gap between compound and isolation exercises:
 
-| raw_readiness | α=1.0 (linear) | α=0.85 |
+| raw_readiness | alpha=1.0 (linear) | alpha=0.8 |
 |---|---|---|
-| 0.8 (isolation) | 0.80 | 0.83 |
-| 1.5 (compound) | 1.50 | 1.43 |
-| ratio | 1.88× | 1.72× |
+| 0.8 (isolation) | 0.80 | 0.84 |
+| 1.5 (compound) | 1.50 | 1.38 |
+| ratio | 1.88x | 1.64x |
 
 Setting `scaling_exponent` closer to `0.5` further equalises them; `1.0` disables compression.
 
@@ -109,9 +114,9 @@ boost = Σ contribution[m] × weekly_bonus(m)
 
 | Muscle's weekly load vs target | Bonus |
 |---|---|
-| Never trained this week (`load == 0`) | **+3.0** |
-| Below `weekly_targets[m].min` | **+2.0** |
-| Between `min` and `mid` | **+1.0** |
+| Never trained this week (`load == 0`) | **+2.0** |
+| Below `weekly_targets[m].min` | **+1.25** |
+| Between `min` and `mid` | **+0.5** |
 | Above `mid` | **0.0** |
 
 Muscles that haven't been touched all week get a strong nudge toward inclusion.
@@ -119,19 +124,19 @@ Muscles that haven't been touched all week get a strong nudge toward inclusion.
 ### 2e — Priority Bonus
 
 ```
-priority_bonus = priority × 0.5     # priority ∈ {1, 2, 3, 4, 5}
+priority_bonus = priority * 0.2     # priority in {1, 2, 3, 4, 5}
 ```
 
-Priority 5 → +2.5, Priority 1 → +0.5. Used to always-prefer certain exercises.
+Priority 5 gives +1.0, Priority 1 gives +0.2. Used to prefer important exercises without overwhelming readiness and recency.
 
-### 2f — Recency Penalty
+### 2f — Recency Penalties
 
 ```
-recency_penalty = -2.0   if exercise was in the last session
-                = 0.0    otherwise
+exercise_recency_penalty = -recency_penalty * recency_decay^days_since_exercise
+family_recency_penalty   = -family_recency_penalty * recency_decay^days_since_family
 ```
 
-Discourages logging the exact same exercise back-to-back across consecutive days.
+The exact-exercise penalty discourages repeating the same movement too soon. The family penalty is smaller and discourages related substitutions, such as another press after a recent press. Exercises and families never seen in history receive no recency penalty.
 
 ### 2g — Soreness Penalty
 
@@ -145,9 +150,9 @@ Default `sore_penalty_factor = 3.0`. A sore quad with contribution 0.8 subtracts
 
 1. **Soreness penalty** (−2.4 for 0.8 contribution at factor 3.0) — largest single-component magnitude
 2. **Muscle readiness / freshness** (sublinear compound of all muscles)
-3. **Recency penalty** (−2.0 flat for same-day repeat)
-4. **Weekly boost** (up to +3.0 for never-trained muscle)
-5. **Priority bonus** (up to +2.5 at priority 5)
+3. **Recency penalties** (largest for same-day repeats, then decay daily)
+4. **Weekly boost** (up to +2.0 before contribution weighting for never-trained muscles)
+5. **Priority bonus** (up to +1.0 at priority 5)
 
 ---
 
@@ -186,14 +191,18 @@ At most **one exercise per family** (e.g. only one `"PRESS"` family member: Benc
 
 ```
 primary_muscle = muscle with highest contribution in exercise
-if muscle_usage[primary_muscle] >= muscle_usage_limit → skip   # default 1.4
+if muscle_usage[primary_muscle] >= muscle_usage_limit -> skip   # default 1.2
 ```
 
 Prevents hammering the same muscle group repeatedly in a session.
 
-### 3e — Fallback
+### 3e — Minimum Score Threshold
 
-If no exercises pass all filters (e.g. everything is sore), the algorithm relaxes all soft constraints and ignores soreness hard-blocks, using score penalties to deprioritise poor choices. Last resort: return the first enabled exercise.
+During the normal pass, exercises below `scoring.min_score_threshold` are skipped. This allows the app to return fewer than `target_exercise_count` exercises instead of filling the plan with poor matches.
+
+### 3f — Fallback
+
+If no exercises pass all filters, the algorithm relaxes soft constraints and ignores the score threshold. Last resort: return the first enabled exercise.
 
 ---
 
@@ -202,11 +211,10 @@ If no exercises pass all filters (e.g. everything is sore), the algorithm relaxe
 After a workout is saved:
 
 ```
-fatigue[m]     = min(1.0,  fatigue[m]     + contribution[m])
-weekly_load[m] =           weekly_load[m] + contribution[m]
+workouts.json += { date, id, exercises: [{ name, mode, sets }] }
 ```
 
-Fatigue persists across sessions; weekly_load resets each Monday.
+Fatigue and weekly load are not stored. The next suggestion recomputes them from `workouts.json`.
 
 ---
 
@@ -218,10 +226,10 @@ All values live in `data/default/config.json`. Users can override any key via th
 
 | Key | Default | Description |
 |---|---|---|
-| `fatigue_decay` | `0.85` | Daily fatigue multiplier. `0.85` means 15% of fatigue clears per rest day. |
-| `max_difficulty_allowed` | `5` | Hard ceiling on exercise difficulty (1–5). |
+| `fatigue_decay` | `0.8` | Daily fatigue multiplier. `0.8` means 20% of fatigue clears per rest day. |
+| `max_difficulty_allowed` | `2` | Hard ceiling on exercise difficulty (1–5). |
 | `target_exercise_count` | `4` | Target number of exercises to select per session. |
-| `muscle_usage_limit` | `1.4` | Max accumulated contribution for a muscle's primary role in one session. |
+| `muscle_usage_limit` | `1.2` | Max accumulated contribution for a muscle's primary role in one session. |
 | `sore_block_threshold` | `0.6` | Contribution threshold above which a sore muscle hard-blocks an exercise. |
 | `fatigue_block_threshold` | `0.9` | Fatigue level above which the fatigue block activates. |
 | `fatigue_block_contribution` | `0.5` | Contribution threshold for the fatigue block. |
@@ -251,9 +259,9 @@ Per-muscle training frequency targets (in sets/contributions per week).
 "QUADS": { "min": 2, "mid": 3, "max": 4 }
 ```
 
-- `min` — below this → +2.0 weekly boost
-- `mid` — below this → +1.0 weekly boost
-- At/above `mid` → +0.0 boost (sufficiently trained)
+- `min` - below this uses `weekly_boost_below_min`
+- `mid` - below this uses `weekly_boost_below_mid`
+- At/above `mid` uses +0.0 boost (sufficiently trained)
 
 ### `scoring`
 
@@ -261,28 +269,38 @@ Controls compound vs. isolation balance.
 
 | Key | Default | Description |
 |---|---|---|
-| `max_total_contribution` | `1.5` | Cap applied to total muscle contributions before scoring. |
-| `scaling_exponent` | `0.85` | Exponent for sublinear readiness scaling (`< 1` compresses compound advantage). |
+| `max_total_contribution` | `1.3` | Cap applied to total muscle contributions before scoring. |
+| `scaling_exponent` | `0.8` | Exponent for sublinear readiness scaling (`< 1` compresses compound advantage). |
+| `weekly_boost_untrained` | `2.0` | Bonus multiplier for muscles not trained in the rolling weekly window. |
+| `weekly_boost_below_min` | `1.25` | Bonus multiplier for muscles below the weekly minimum target. |
+| `weekly_boost_below_mid` | `0.5` | Bonus multiplier for muscles below the weekly mid target. |
+| `priority_coeff` | `0.2` | Points added per exercise priority level. |
+| `recency_penalty` | `2.5` | Exact-exercise repeat penalty before decay. |
+| `family_recency_penalty` | `1.0` | Same-family repeat penalty before decay. |
+| `recency_decay` | `0.65` | Per-day multiplier for exercise and family repeat penalties. |
+| `min_score_threshold` | `1.0` | Normal-pass score floor. |
 
 ---
 
 ## Worked Example
 
-**Setup:** Quads moderately fatigued (0.4), not sore. Squat last session.
+**Setup:** Quads moderately fatigued (0.4), not sore. Squat was last done yesterday.
 
 ```
-Squat muscles: { QUADS: 0.8, GLUTES: 0.6 }  → total 1.4, no capping
+Squat muscles: { QUADS: 0.8, GLUTES: 0.6 }  → total 1.4, capped to 1.3
+effective contributions ≈ { QUADS: 0.74, GLUTES: 0.56 }
 
 readiness(QUADS) = 2.5 × (1 − 0.4)² = 2.5 × 0.36 = 0.90
 readiness(GLUTES)= 2.5 × (1 − 0.0)² = 2.5 × 1.00 = 2.50
 
-raw_readiness = 0.8×0.90 + 0.6×2.50 = 0.72 + 1.50 = 2.22
-scaled        = 2.22 ^ 0.85 ≈ 1.98
+raw_readiness = 0.74×0.90 + 0.56×2.50 ≈ 2.06
+scaled        = 2.06 ^ 0.8 ≈ 1.78
 
-weekly_boost  = 0.8×2.0 + 0.6×2.0 = 1.60 + 1.20 = 2.80   # both under min
-priority      = 5 × 0.5 = 2.50
-recency       = -2.00   # was in last session
+weekly_boost  = 0.74×2.0 + 0.56×2.0 ≈ 2.60   # both untrained this week
+priority      = 5 × 0.2 = 1.00
+recency       = -2.5 × 0.65^1 = -1.63
+family        = -1.0 × 0.65^1 = -0.65
 soreness      = 0.00
 
-total ≈ 1.98 + 2.80 + 2.50 − 2.00 = 5.28
+total ≈ 1.78 + 2.60 + 1.00 - 1.63 - 0.65 = 3.10
 ```

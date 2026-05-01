@@ -141,6 +141,8 @@ Each user's data is stored as flat JSON files in `data/users/<username>/`. The `
 
 Fatigue and weekly load are **not stored** — they are computed on demand from the full workout history by `compute_fatigue_from_history()` and `compute_weekly_load_from_history()` in `core_logic.py`.
 
+Workout entries store only logging data: exercise `name`, `mode`, and `sets`. Exercise-library metadata is loaded from `exercises.json` when history or edit screens need pattern labels, muscle chips, or descriptions.
+
 The `_read(key, default)` / `_write(key, data)` functions in `src/storage/base.py` handle all file I/O, resolving paths based on `_current_user` (a module-level global set by each API handler before any storage call).
 
 ---

@@ -1389,5 +1389,33 @@
         "Use controlled transitions between squat and press."
       ]
     }
+  },
+  {
+    "name": "Crunches",
+    "enabled": true,
+    "difficulty": 1,
+    "priority": 2,
+    "pattern": "CORE",
+    "family": "CORE_DYNAMIC",
+    "muscles": {
+      "CORE": 0.9
+    },
+    "description": {
+      "steps": [
+        "Lie on your back with knees bent and feet flat on the floor.",
+        "Place your hands lightly behind your head or across your chest.",
+        "Lift your shoulders slightly off the ground by contracting your abs.",
+        "Lower back down slowly with control."
+      ],
+      "breathing": [
+        "Exhale as you crunch up.",
+        "Inhale as you lower back down."
+      ],
+      "careful_about": [
+        "Do not pull on your neck with your hands.",
+        "Keep the movement small and controlled.",
+        "Avoid using momentum to lift yourself."
+      ]
+    }
   }
 ]

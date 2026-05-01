@@ -28,13 +28,19 @@ def register_workout_routes(app):
         if username:
             set_current_user(username)
 
-    def _get_history_names(config: dict, workouts: list) -> list:
-        """Return exercise names from the last N workouts for repetition penalty."""
-        n = int(config.get("scoring", {}).get("recency_history_sessions", 2))
-        names = []
-        for w in workouts[-n:]:
-            names.extend(e.get("name") for e in w.get("exercises", []))
-        return names
+    def _get_family_recency(recency: dict, exercises: list) -> dict:
+        """Return {family: min_days_since_any_family_member_done}."""
+        family_min: dict = {}
+        for ex in exercises:
+            family = (ex.get("family") or "").strip()
+            if not family:
+                continue
+            days = recency.get(ex["name"])
+            if days is None:
+                continue
+            if family not in family_min or days < family_min[family]:
+                family_min[family] = days
+        return family_min
 
     def _get_last_done_days(workouts: list) -> dict:
         """Return {exercise_name: days_since_last_done} across all history."""
@@ -125,14 +131,14 @@ def register_workout_routes(app):
         fatigue = compute_fatigue_from_history(workouts, config, exercise_defs=exercises)
         weekly_load = compute_weekly_load_from_history(workouts, exercise_defs=exercises)
         sore = get_soreness()
-        history = _get_history_names(config, workouts)
+        recency = _get_last_done_days(workouts)
+        family_recency = _get_family_recency(recency, exercises)
 
-        last_done_days = _get_last_done_days(workouts)
-        selected = select_workout(fatigue, weekly_load, sore, history, exercises, config, last_done_days)
+        selected = select_workout(fatigue, weekly_load, sore, recency, exercises, config, family_recency)
 
         scored = []
         for ex in selected:
-            bd = score_exercise_breakdown(ex, fatigue, weekly_load, sore, history, config)
+            bd = score_exercise_breakdown(ex, fatigue, weekly_load, sore, recency, config, family_recency)
             scored.append({**ex, "_score": bd["total"], "_score_breakdown": bd})
 
         selected_names = {ex["name"] for ex in scored}
@@ -141,7 +147,7 @@ def register_workout_routes(app):
         for ex in exercises:
             if not ex.get("enabled", True):
                 continue
-            bd = score_exercise_breakdown(ex, fatigue, weekly_load, sore, history, config)
+            bd = score_exercise_breakdown(ex, fatigue, weekly_load, sore, recency, config, family_recency)
             blocked = not is_exercise_valid(ex, fatigue, sore, config)
             all_scores.append({
                 "name":             ex["name"],

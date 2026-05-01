@@ -106,11 +106,12 @@ export function renderSuggestion(exercises, groupedByPattern, allScores = [], do
     const tier = _scoreTier(ex._score);
     const tierLabel = tier === 'score-tier-high' ? 'Best pick' : 'Good';
     const rows = [
-      ['Muscle readiness',  bd.readiness],
-      ['Weekly boost',      bd.weekly_boost],
-      ['Priority bonus',    bd.priority],
-      ['Recency penalty',   bd.recency_penalty],
-      ['Soreness penalty',  bd.soreness_penalty],
+      ['Muscle readiness',     bd.readiness],
+      ['Weekly boost',         bd.weekly_boost],
+      ['Priority bonus',       bd.priority],
+      ['Recency penalty',      bd.recency_penalty],
+      ['Family recency',       bd.family_recency_penalty],
+      ['Soreness penalty',     bd.soreness_penalty],
     ].map(([label, val]) => {
       if (!val) return '';
       const cls = val > 0 ? 'score-row-pos' : 'score-row-neg';
@@ -134,7 +135,10 @@ export function renderSuggestion(exercises, groupedByPattern, allScores = [], do
       <div class="suggestion-exercise-row">
         <div class="suggestion-exercise-top">
           <span class="suggestion-exercise-name">${ex.name}${diffBadge}</span>
-          ${_scoreDetailsHtml(ex)}
+          <div class="suggestion-exercise-actions">
+            ${_scoreDetailsHtml(ex)}
+            <button class="suggestion-disable-btn" data-disable-exercise="${ex.name}" title="Disable this exercise so it won't be suggested again">Disable</button>
+          </div>
         </div>
         <div class="exercise-muscle-tags">${muscleChipsHtml(ex.muscles)}</div>
         ${_descriptionHtml(ex.description)}
@@ -173,11 +177,12 @@ function _renderAllScoresSection(container, allScores) {
   ];
 
   const SCORE_COMPONENTS = [
-    { key: 'readiness',        label: 'Readiness',  title: 'Muscle freshness: weight × (1−fatigue)²' },
-    { key: 'weekly_boost',     label: 'Weekly',     title: 'Boost when muscle has not met weekly target' },
-    { key: 'priority',         label: 'Priority',   title: 'exercise.priority (1–3) × priority_coeff' },
-    { key: 'recency_penalty',  label: 'Recency',    title: 'Penalty when exercise was done in last session' },
-    { key: 'soreness_penalty', label: 'Soreness',   title: 'Soft penalty: −contribution × sore_penalty_factor per sore muscle' },
+    { key: 'readiness',              label: 'Readiness',       title: 'Muscle freshness: weight × (1−fatigue)²' },
+    { key: 'weekly_boost',           label: 'Weekly',          title: 'Boost when muscle has not met weekly target' },
+    { key: 'priority',               label: 'Priority',        title: 'exercise.priority (1–3) × priority_coeff' },
+    { key: 'recency_penalty',        label: 'Recency',         title: 'Penalty for this exact exercise being done recently' },
+    { key: 'family_recency_penalty', label: 'Family recency',  title: 'Penalty for a same-family exercise being done recently' },
+    { key: 'soreness_penalty',       label: 'Soreness',        title: 'Soft penalty: −contribution × sore_penalty_factor per sore muscle' },
   ];
 
   const patternBlocks = orderedPatterns.map(p => {
@@ -492,7 +497,7 @@ export function renderConfigPanel() {
         <div class="config-field">
           <div class="config-field-label">
             <span class="config-field-name">Repeat Penalty</span>
-            <span class="config-field-desc">Score reduction for exercises done in the most recent sessions (see window below). Prevents repeating the same workout.</span>
+            <span class="config-field-desc">Score reduction when this exact exercise was done recently. Prevents repeating the same exercise.</span>
           </div>
           <input type="number" id="scoring-recency-penalty" min="0" step="0.1"
             data-config-scope="scoring" data-field="recency_penalty"
@@ -500,12 +505,30 @@ export function renderConfigPanel() {
         </div>
         <div class="config-field">
           <div class="config-field-label">
-            <span class="config-field-name">Repeat Window (sessions)</span>
-            <span class="config-field-desc">How many recent sessions to check when applying the repeat penalty. 2 = penalise exercises from the last 2 workouts.</span>
+            <span class="config-field-name">Family Repeat Penalty</span>
+            <span class="config-field-desc">Score reduction when a different exercise from the same movement family was done recently (e.g. Bench Press penalises Overhead Press). Typically lower than Repeat Penalty.</span>
           </div>
-          <input type="number" id="scoring-recency-sessions" min="1" max="10" step="1"
-            data-config-scope="scoring" data-field="recency_history_sessions"
-            value="${scoring.recency_history_sessions ?? 2}">
+          <input type="number" id="scoring-family-recency-penalty" min="0" step="0.1"
+            data-config-scope="scoring" data-field="family_recency_penalty"
+            value="${scoring.family_recency_penalty ?? 1.0}">
+        </div>
+        <div class="config-field">
+          <div class="config-field-label">
+            <span class="config-field-name">Repeat Penalty Decay (per day)</span>
+            <span class="config-field-desc">How fast both repeat penalties fade. 0.75 = 25% less penalty each day. Applies to both exercise and family penalties.</span>
+          </div>
+          <input type="number" id="scoring-recency-decay" min="0.01" max="1" step="0.01"
+            data-config-scope="scoring" data-field="recency_decay"
+            value="${scoring.recency_decay ?? 0.75}">
+        </div>
+        <div class="config-field">
+          <div class="config-field-label">
+            <span class="config-field-name">Min Score Threshold</span>
+            <span class="config-field-desc">Exercises scoring below this are dropped from the suggestion. Fewer than ${scoring.target_exercise_count ?? 4} exercises may be returned. 0 = no threshold (always suggest up to the max).</span>
+          </div>
+          <input type="number" id="scoring-min-score-threshold" min="0" step="0.1"
+            data-config-scope="scoring" data-field="min_score_threshold"
+            value="${scoring.min_score_threshold ?? 0}">
         </div>
       </details>
 
@@ -656,7 +679,7 @@ export function renderExerciseManagement() {
         <details class="exercise-group-section" open data-pattern="${pattern}">
           <summary class="exercise-group-header">
             <h3>${PATTERN_LABELS[pattern] || pattern}</h3>
-            <button data-add-exercise="${pattern}" class="ex-add-btn" onclick="event.stopPropagation()">+ Add</button>
+            <button data-add-exercise="${pattern}" class="ex-add-btn">+ Add</button>
           </summary>
           <div class="exercise-list">${items}</div>
         </details>
@@ -735,7 +758,7 @@ export function renderWorkoutUI() {
 
 }
 
-function _buildExerciseCard(ex) {
+function _buildExerciseCard(ex, { openByDefault = false } = {}) {
   const exId = `${ex.name.replace(/\s+/g, '_')}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
   state.ui.exerciseMap[ex.name] = {
     id: exId, name: ex.name,
@@ -744,7 +767,7 @@ function _buildExerciseCard(ex) {
     muscles: ex.muscles || {}
   };
 
-  // Build remove button as a real DOM element so the listener is guaranteed
+  // Remove button — stopPropagation so it does not toggle the <details>
   const removeBtn = document.createElement('button');
   removeBtn.className = 'exercise-remove-btn';
   removeBtn.title = 'Remove from this session';
@@ -755,23 +778,49 @@ function _buildExerciseCard(ex) {
     delete state.ui.exerciseMap[ex.name];
   });
 
-  const titleEl = document.createElement('div');
-  titleEl.className = 'exercise-title';
-  titleEl.textContent = ex.name;
+  // Set count badge — shown when card is collapsed
+  const setBadge = document.createElement('span');
+  setBadge.className = 'exercise-set-badge';
+  setBadge.hidden = true;
 
-  const headerRow = document.createElement('div');
-  headerRow.className = 'exercise-header-row';
-  headerRow.appendChild(titleEl);
-  headerRow.appendChild(removeBtn);
+  function _refreshBadge() {
+    const setsDiv = document.getElementById(`sets-${exId}`);
+    const count = setsDiv ? setsDiv.children.length : 0;
+    if (count > 0) {
+      setBadge.textContent = `${count} set${count !== 1 ? 's' : ''}`;
+      setBadge.hidden = false;
+    } else {
+      setBadge.hidden = true;
+    }
+  }
 
-  // Build the rest of the card body via innerHTML (no event listeners needed there)
+  // Summary right: badge + remove
+  const summaryRight = document.createElement('div');
+  summaryRight.className = 'exercise-summary-right';
+  summaryRight.appendChild(setBadge);
+  summaryRight.appendChild(removeBtn);
+
+  // Summary left: name + chips
   const chipsHtml = muscleChipsHtml(ex.muscles);
-  const descHtml  = _descriptionHtml(ex.description);
-  const body = document.createElement('div');
-  body.innerHTML = `
+  const summaryLeft = document.createElement('div');
+  summaryLeft.className = 'exercise-summary-left';
+  summaryLeft.innerHTML = `
+    <div class="exercise-title">${ex.name}</div>
     ${chipsHtml ? `<div class="exercise-muscle-tags">${chipsHtml}</div>` : ''}
-    ${descHtml}
+  `;
+
+  const summary = document.createElement('summary');
+  summary.className = 'exercise-summary';
+  summary.appendChild(summaryLeft);
+  summary.appendChild(summaryRight);
+
+  // Card body: progress + description + mode selector + sets
+  const descHtml = _descriptionHtml(ex.description);
+  const body = document.createElement('div');
+  body.className = 'exercise-body';
+  body.innerHTML = `
     <div id="progress-${exId}" class="exercise-progress-note"></div>
+    ${descHtml}
     <div class="exercise-mode-row">
       <label style="font-size:13px;font-weight:600;color:var(--text-muted)">Mode:
         <select id="mode-${exId}" style="margin-left:6px">
@@ -784,13 +833,21 @@ function _buildExerciseCard(ex) {
     <div id="sets-${exId}" class="sets-container"></div>
   `;
 
-  const exDiv = document.createElement('div');
+  const exDiv = document.createElement('details');
   exDiv.className = 'exercise';
   exDiv.setAttribute('data-ex-id', exId);
-  exDiv.appendChild(headerRow);
-  while (body.firstChild) exDiv.appendChild(body.firstChild);
+  if (openByDefault) exDiv.setAttribute('open', '');
+  exDiv.appendChild(summary);
+  exDiv.appendChild(body);
 
-  preFillSetsFromHistory(exId, ex.name);
+  // Refresh badge whenever the card is collapsed
+  exDiv.addEventListener('toggle', () => { if (!exDiv.open) _refreshBadge(); });
+
+  // After prefill resolves, show the badge if sets were pre-filled
+  // Skip when editWorkout is loading a specific workout (sets are filled manually there)
+  if (!state.ui.skipPrefill) {
+    preFillSetsFromHistory(exId, ex.name).then(_refreshBadge);
+  }
   loadProgress(exId, ex.name);
   return exDiv;
 }
@@ -842,8 +899,16 @@ export function initExerciseSearch() {
     focusedIdx = -1;
   }
 
-  function _commit(name) {
+  function _select(name) {
     const trimmed = name?.trim();
+    if (!trimmed) return;
+    input.value = trimmed;
+    _hideDropdown();
+    input.focus();
+  }
+
+  function _commit() {
+    const trimmed = input.value?.trim();
     if (!trimmed) return;
     addCustomExerciseToWorkout(trimmed);
     input.value = '';
@@ -865,7 +930,8 @@ export function initExerciseSearch() {
     } else if (e.key === 'Enter') {
       e.preventDefault();
       const focused = items[focusedIdx];
-      _commit(focused ? focused.getAttribute('data-ex-name') : input.value);
+      if (focused) _select(focused.getAttribute('data-ex-name'));
+      else _commit();
     } else if (e.key === 'Escape') {
       _hideDropdown();
     }
@@ -873,7 +939,7 @@ export function initExerciseSearch() {
 
   dropdown.addEventListener('mousedown', e => {
     const item = e.target.closest('[data-ex-name]');
-    if (item) { e.preventDefault(); _commit(item.getAttribute('data-ex-name')); }
+    if (item) { e.preventDefault(); _select(item.getAttribute('data-ex-name')); }
   });
 
   dropdown.addEventListener('mousemove', e => {
@@ -881,7 +947,7 @@ export function initExerciseSearch() {
     if (item) _setFocused(_items().indexOf(item));
   });
 
-  if (addBtn) addBtn.addEventListener('click', () => _commit(input.value));
+  if (addBtn) addBtn.addEventListener('click', () => _commit());
 
   document.addEventListener('click', e => {
     if (!input.contains(e.target) && !dropdown.contains(e.target)) _hideDropdown();
@@ -916,7 +982,7 @@ export function addCustomExerciseToWorkout(name) {
     container.appendChild(gDiv);
   }
 
-  gDiv.appendChild(_buildExerciseCard(ex));
+  gDiv.appendChild(_buildExerciseCard(ex, { openByDefault: true }));
 }
 
 // ---- Helpers ----

@@ -4,12 +4,21 @@ Workout data storage functions.
 This module handles workout creation, retrieval, update, and deletion.
 """
 
+import json
+import os
 from datetime import datetime, date
-from .base import _read, _write
+from .base import _read, _write, DATA_DIR
 
 def get_workouts():
     """Get all workouts for current user."""
     return _read("workouts", [])
+
+_EXERCISE_SAVE_KEYS = {'name', 'mode', 'sets'}
+
+def _lean_exercises(exercises):
+    """Keep only name/mode/sets — drop library metadata (pattern, family, muscles, etc.)."""
+    return [{k: ex[k] for k in _EXERCISE_SAVE_KEYS if k in ex} for ex in exercises]
+
 
 def add_workout(workout):
     """Add a new workout and update fatigue + weekly_load."""
@@ -25,6 +34,7 @@ def add_workout(workout):
     import time
     import random
     workout['id'] = f"{workout['date']}_{int(time.time() * 1000)}_{random.randint(1000, 9999)}"
+    workout['exercises'] = _lean_exercises(workout.get('exercises', []))
 
     workouts.append(workout)
     save_all_workouts(workouts)
@@ -39,7 +49,7 @@ def update_workout(workout_id, exercises):
             workouts[i] = {
                 'date': workout.get('date'),
                 'id': workout.get('id'),
-                'exercises': exercises
+                'exercises': _lean_exercises(exercises)
             }
             save_all_workouts(workouts)
             return workouts[i]
@@ -77,6 +87,37 @@ def is_duplicate(existing, new):
     existing_names = sorted([e["name"] for e in existing.get("exercises", [])])
     new_names = sorted([e["name"] for e in new.get("exercises", [])])
     return existing_names == new_names
+
+
+def migrate_strip_exercise_meta():
+    """
+    One-time (idempotent) migration: strip pattern/family/muscles from every
+    exercise in every workout for every user.
+    """
+    _STRIP = {'pattern', 'family', 'muscles', 'description', 'difficulty', 'priority', 'enabled'}
+
+    def _process_file(path):
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                workouts = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            return
+        changed = False
+        for w in workouts:
+            for ex in w.get('exercises', []):
+                for key in list(ex.keys()):
+                    if key in _STRIP:
+                        del ex[key]
+                        changed = True
+        if changed:
+            with open(path, 'w', encoding='utf-8') as f:
+                json.dump(workouts, f, indent=2)
+
+    _process_file(os.path.join(DATA_DIR, 'default', 'workouts.json'))
+    users_dir = os.path.join(DATA_DIR, 'users')
+    if os.path.exists(users_dir):
+        for user in os.listdir(users_dir):
+            _process_file(os.path.join(users_dir, user, 'workouts.json'))
 
 
 def get_today_workout():

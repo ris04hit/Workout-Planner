@@ -1,7 +1,7 @@
 # Exercise-Based Suggestion Algorithm
 
 **Source:** `src/core_logic.py`
-**Entry point:** `select_workout(fatigue, weekly_load, sore, history, exercises, config)`
+**Entry point:** `select_workout(fatigue, weekly_load, sore, recency, exercises, config, family_recency)`
 
 The suggestion engine answers: *"Given muscle fatigue, soreness, and weekly load, which exercises should I do today?"*
 
@@ -62,7 +62,8 @@ GET /api/suggest
   → compute_fatigue_from_history()     — build fatigue dict from history
   → compute_weekly_load_from_history() — build weekly_load dict from history
   → get_soreness()                     — load user's sore muscle flags
-  → select_workout(fatigue, weekly_load, sore, history, exercises, config)
+  → build recency maps                 — exercise and family days since last performed
+  → select_workout(fatigue, weekly_load, sore, recency, exercises, config, family_recency)
        → is_exercise_valid()           — hard filter per exercise
        → compute_exercise_score()      — numeric score per exercise
        → greedy selection loop         — pattern limits, family dedup, muscle saturation
@@ -94,12 +95,15 @@ An exercise is blocked if **any** of:
 ## Scoring (`compute_exercise_score`)
 
 ```
-score = Σ c × readiness(m)                    # readiness-weighted contribution
-      + Σ c × weekly_bonus(m)                 # frequency boost
-      + priority × priority_coeff             # priority factor (default coeff 0.5)
-      − recency_penalty  if in last N sessions # repetition penalty
-      − Σ c × sore_penalty_factor × sore[m]   # soft soreness penalty
+score = sum(c * readiness(m))                                      # readiness-weighted contribution
+      + sum(c * weekly_bonus(m))                                   # frequency boost
+      + priority * priority_coeff                                  # priority factor
+      - recency_penalty * recency_decay^days_since_exercise        # exact exercise repeat penalty
+      - family_recency_penalty * recency_decay^days_since_family   # same-family repeat penalty
+      - sum(c * sore_penalty_factor for sore muscles)              # soft soreness penalty
 ```
+
+The recency penalties are **continuous** and cover the **full workout history**. The exact-exercise penalty is largest when the same exercise was done today (`days = 0`, full `recency_penalty`) and decays exponentially toward zero. The family penalty applies the same decay to the most recent exercise in the same `family`. Exercises and families never done receive zero penalty. `recency_decay` (default `0.65`) controls how fast both penalties fade per day.
 
 **Weekly bonus** (per muscle):
 
@@ -120,10 +124,11 @@ Greedy loop over exercises sorted by score (descending):
 2. Check **pattern limit** — skip if `pattern_count[pattern] >= pattern_limits[pattern]`
 3. Check **family deduplication** — skip if `family` already selected
 4. Check **muscle saturation** — skip if primary muscle's `muscle_usage >= muscle_usage_limit`
-5. Accept — update `pattern_count`, `families_used`, `muscle_usage`
-6. Repeat until `target_exercise_count` reached
+5. Check **minimum score threshold** — skip if score is below `scoring.min_score_threshold`
+6. Accept — update `pattern_count`, `families_used`, `muscle_usage`
+7. Repeat until `target_exercise_count` reached
 
-**Fallback:** if no exercises pass all filters, relax structural constraints and retry. Last resort: return the first enabled exercise.
+**Fallback:** if no exercises pass all filters, relax structural constraints and ignore `min_score_threshold`. Last resort: return the first enabled exercise.
 
 ---
 
@@ -132,7 +137,7 @@ Greedy loop over exercises sorted by score (descending):
 When replaying workout history, fatigue decays between workout days:
 
 ```
-fatigue[m] *= fatigue_decay ^ days_between    (default decay 0.85/day)
+fatigue[m] *= fatigue_decay ^ days_between    (default decay 0.8/day)
 ```
 
 After accumulating contributions from a workout:
@@ -155,9 +160,9 @@ Starting state: no history, no soreness.
 
 | Exercise | Pattern | Readiness | Weekly boost | Priority | Total |
 |---|---|---|---|---|---|
-| Deadlift | HINGE | ~5.0 | +2.0 | +2.5 | **~9.5** |
-| Squat | SQUAT | ~4.5 | +2.0 | +2.5 | **~9.0** |
-| Bench Press | PUSH | ~4.3 | +2.0 | +2.5 | **~8.8** |
+| Deadlift | HINGE | ~4.6 | +2.0 | +1.0 | **~7.6** |
+| Squat | SQUAT | ~4.1 | +2.0 | +1.0 | **~7.1** |
+| Bench Press | PUSH | ~3.9 | +2.0 | +1.0 | **~6.9** |
 | … | … | … | … | … | … |
 
 Output is grouped by pattern: HINGE, SQUAT, PUSH, PULL, CORE, ACCESSORY.
